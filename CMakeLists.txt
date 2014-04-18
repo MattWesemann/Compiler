@@ -26,12 +26,14 @@ endif()
 # For convience.
 set(BIN ${CMAKE_CURRENT_BINARY_DIR})
 
+file(MAKE_DIRECTORY ${BIN}/flex-bison-autogen)
+
 FLEX_TARGET(
 	SCANNER flex-bison/language_0.l
 	${BIN}/flex-bison-autogen/language_0_scanner.cpp COMPILE_FLAGS "${FLEX_FLAGS}")
 BISON_TARGET(
 	PARSER flex-bison/language_0.y
-	${BIN}/flex-bison-autogen/language_0_parser.cpp)
+	${BIN}/flex-bison-autogen/language_0_parser.cpp COMPILE_FLAGS -v)
 ADD_FLEX_BISON_DEPENDENCY(SCANNER PARSER)
 
 if(MSVC)
@@ -39,6 +41,10 @@ if(MSVC)
 	#     If the version used to build a library (like fl) doesn't match the one you're
 	#     using, this setting will error during linking. Turning it off here lets
 	#     us use VS2013 with whichever version of Flex we got.
+
+	link_directories(
+		C:/win_flex_bison
+	) 
 
 	set(CMAKE_EXE_LINKER_FLAGS
 		"${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO"
@@ -87,12 +93,14 @@ add_executable(frontend
 	# Source files.
 	source/frontend.cpp
 	source/ast.cpp
+	source/namespace.cpp
 	${BIN}/flex-bison-autogen/language_0_scanner.cpp
 	${BIN}/flex-bison-autogen/language_0_parser.cpp
 
 	# Header files.
 	${BIN}/flex-bison-autogen/language_0_parser.hpp
 	include/ast.h
+	include/namespace.h
 
 	# Flex/Bison files.
 	flex-bison/language_0.l
