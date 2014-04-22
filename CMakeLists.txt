@@ -93,6 +93,7 @@ add_executable(frontend
 	# Source files.
 	source/frontend.cpp
 	source/ast.cpp
+	source/scope.cpp
 	source/namespace.cpp
 	${BIN}/flex-bison-autogen/language_0_scanner.cpp
 	${BIN}/flex-bison-autogen/language_0_parser.cpp
@@ -100,6 +101,7 @@ add_executable(frontend
 	# Header files.
 	${BIN}/flex-bison-autogen/language_0_parser.hpp
 	include/ast.h
+	include/scope.h
 	include/namespace.h
 
 	# Flex/Bison files.
