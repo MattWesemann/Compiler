@@ -2,6 +2,8 @@
 
 #include <unordered_map>
 #include <string>
+#include <memory>
+#include "symbolTable.h"
 
 class SymbolTable;
 class Symbol;
@@ -9,14 +11,16 @@ class Symbol;
 class Scope {
 public:
 	Scope();
+	Scope(Scope* parent);
 
-	Symbol* getSymbol(std::string name);
-	void createSymbol(std::string name);
+	std::shared_ptr<Symbol> getSymbol(std::string& name);
+	void createSymbol(std::string& name, Attributes& attributes);
 
-	Scope* getScope(std::string name);
-	void createScope(std::string name);
+	std::shared_ptr<Scope> getScope(std::string& name);
+	void createScope(std::string& name);
 
 private:
-	SymbolTable* table;
-	std::unordered_map<std::string, Scope*> names;
+	Scope* parent;
+	SymbolTable table;
+	std::unordered_map<std::string, std::shared_ptr<Scope>> names;
 };

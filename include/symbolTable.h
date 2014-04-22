@@ -1,36 +1,14 @@
 #pragma once
 
 #include <string>
-#include <map>
+#include <unordered_map>
+#include <memory>
+#include "attributes.h"
+#include "symbol.h"
 
-
-using namespace std;
-
-class SymbolTable
-{
+class SymbolTable {
 public:
-	
-	
-
-	enum Type {
-		Empty,
-		Assignment,
-		Block,
-		Declaration,
-		Declarations,
-		Else,
-		Expression,
-		If,
-		Literal,
-		Operator,
-		Program,
-		Return,
-		Symbol,
-		While,
-	};
-
 	SymbolTable();
-
 
 	// probably wont need these if we are doing one table per scope
 	// create a new scope
@@ -38,19 +16,15 @@ public:
 	//close the current scope
 	void closeScope();
 
-
-	// TODO : add attributes parameter to handle
-	// values / modifiers ie. const static etc.
 	// possibly make attributes a hash?
 	// throw an error if symbol already in current scope
-	void enterSymbol(string name, Type type);
+	void enterSymbol(std::string& name, Attributes& attributes);
 
 	// is the symbol declared in the current scope.
-	bool declaredLocally(string name);
+	bool declaredLocally(std::string& name);
 
-	// returns attributes when declaredLocally is true
-	// TODO : get attributes figured out
-	// map retrieveSymbol(string name);
+	std::shared_ptr<Symbol> retrieveSymbol(std::string& name);
 
-
+private:
+	std::unordered_map<std::string, std::shared_ptr<Symbol>> symbols;
 };

@@ -1,19 +1,16 @@
 #include "Symbol.h"
 
+using namespace std;
 
-Symbol::Symbol(string _id, string _type)
-{
-	id = _id;
-	type = _type;
+Symbol::Symbol(string& name, Attributes& attributes){
+	this->name = name;
+	this->attributes = attributes;
 }
 
-
-string Symbol::get_id() 
-{
-	return id;
+string Symbol::getName(){
+	return name;
 }
 
-string Symbol::get_type()
-{
-	return type;
+Attributes& Symbol::getAttributes(){
+	return attributes;
 }

@@ -2,22 +2,25 @@
 
 using namespace std;
 
-Scope::Scope(){
-
+Scope::Scope() : Scope(nullptr) {
 }
 
-Symbol* Scope::getSymbol(std::string name){
-	return nullptr;
+Scope::Scope(Scope* parent){
+	this->parent = parent;
 }
 
-void Scope::createSymbol(std::string name){
-
+shared_ptr<Symbol> Scope::getSymbol(string& name){
+	return table.retrieveSymbol(name);
 }
 
-Scope* Scope::getScope(string name){
+void Scope::createSymbol(string& name, Attributes& attributes){
+	table.enterSymbol(name, attributes);
+}
+
+shared_ptr<Scope> Scope::getScope(string& name){
 	return names[name];
 }
 
-void Scope::createScope(string name){
-	names[name] = new Scope();
+void Scope::createScope(string& name){
+	names[name] = make_shared<Scope>(this);
 }

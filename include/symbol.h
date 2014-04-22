@@ -1,22 +1,17 @@
 #pragma once
 
 #include <string>
+#include "attributes.h"
 
-using namespace std;
-
-class Symbol
-{
+class Symbol {
 public:
-	//TODO: add hash of attributes or something
+	Symbol(std::string &name, Attributes& attributes);
 
-	string id;
-	string type;
+	std::string getName();
+	Attributes& getAttributes();
 
-	Symbol(string id, string type);
-
-	string get_id();
-	string get_type();
-
-
+private:
+	std::string name;
+	Attributes attributes;
 };
 
