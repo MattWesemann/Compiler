@@ -5,8 +5,6 @@
 
 class Namespace {
 public:
-	static const int INIT_LEN = 128;
-
 	Namespace();
 	Name add(std::string name);
 
