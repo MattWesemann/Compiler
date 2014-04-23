@@ -1,12 +1,16 @@
 #pragma once
 #include <string>
 
+class Namespace;
+
 class Name {
 public:
-	Name(char* name, int len);
+	Name();
+	Name(size_t offset, size_t len, Namespace* space);
 	std::string get();
 
 private:
-	char* name;
-	int len;
+	size_t offset;
+	size_t len;
+	Namespace* space;
 };

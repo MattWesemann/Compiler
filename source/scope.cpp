@@ -10,7 +10,17 @@ Scope::Scope(Scope* parent){
 }
 
 shared_ptr<Symbol> Scope::getSymbol(string& name){
-	return table.retrieveSymbol(name);
+	auto ret = table.retrieveSymbol(name);
+
+	// we found it
+	if (ret.get() != nullptr)
+		return ret;
+
+	// we are global scope
+	if (parent == nullptr)
+		return shared_ptr<Symbol>();
+
+	return parent->getSymbol(name);
 }
 
 void Scope::createSymbol(string& name, Attributes& attributes){
