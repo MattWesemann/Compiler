@@ -23,7 +23,8 @@
 %token <integer>    integer
 %token <real>       real
 %token <str>        identifier
-%token <str>        unaryOperatorKeyword
+%token <str>        unaryPreOperatorKeyword
+%token <str>        unaryPostOperatorKeyword
 %token <str>        assignmentOperatorKeyword
 %token <str>        binaryOperatorKeyword0
 %token <str>        binaryOperatorKeyword1
@@ -50,7 +51,10 @@
 %type <node>        DeclList
 %type <node>        ElseStatement
 %type <node>        Expression
-%type <node>        PrimaryTerm
+%type <node>        PrimaryTerm 
+%type <node>        TermUnary
+%type <node>        TermPreUnary
+%type <node>        TermPostUnary
 %type <node>        TermPrecedence0
 %type <node>        TermPrecedence1
 %type <node>        TermPrecedence2
@@ -71,6 +75,7 @@
 %type <node>        Value
 %type <node>        WhileStatement
 %type <str>         assignmentOperator
+%type <str>         unaryPreOperator
 
 %code requires {
   #include "ast.h"
@@ -306,13 +311,39 @@ TermPrecedence1:
 ;
 
 TermPrecedence0:
-  TermPrecedence0 binaryOperatorKeyword0 PrimaryTerm {
+  TermPrecedence0 binaryOperatorKeyword0 TermUnary {
     $$ = ASTNode(ASTNode::Expression, $2);
     $$.addChild($1);
     $$.addChild($3);
   }
+| TermUnary {
+    $$ = $1;
+  }
+;
+
+TermUnary:
+  TermPreUnary {
+    $$ = $1;
+  }
+| TermPostUnary {
+    $$ = $1;
+  }
 | PrimaryTerm {
     $$ = $1;
+  }
+;
+
+TermPreUnary:
+  unaryPreOperator PrimaryTerm {
+    $$ = ASTNode(ASTNode::Expression, $1);
+    $$.addChild($2);
+  }
+;
+
+TermPostUnary:
+  PrimaryTerm unaryPostOperatorKeyword {
+    $$ = ASTNode(ASTNode::Expression, $2);
+    $$.addChild($1);
   }
 ;
 
@@ -322,6 +353,25 @@ PrimaryTerm:
   }
 | Value {
     $$ = $1;
+  }
+;
+
+// we can't match all in one regex so we must do it this way
+unaryPreOperator: 
+  unaryPreOperatorKeyword {
+    $$ = $1;
+  }
+| unaryPostOperatorKeyword {
+    $$ = $1;
+  }
+| binaryOperatorKeyword1 {
+    $$ = $1;
+  }
+| binaryOperatorKeyword5 {
+    $$ = $1;
+  }
+| '*' {
+    $$ = string("*");
   }
 ;
 

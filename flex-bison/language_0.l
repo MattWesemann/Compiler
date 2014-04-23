@@ -3,7 +3,8 @@
 	#include "language_0_parser.hpp"
 %}
 
-UnaryOp       "!"|"~"|"++"|"--"
+PreUnaryOp      "!"|"~"
+PostUnaryOp     "++"|"--"
 BinaryOp0       "*"|"/"|"%"
 BinaryOp1       "+"|"-"
 BinaryOp2       ">>"|"<<"
@@ -54,6 +55,16 @@ AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 [a-zA-Z_]+[a-zA-Z_0-9]* {
 	yylval.str = yytext;
 	return identifier;
+}
+
+{PreUnaryOp} {
+	yylval.str = yytext;
+	return unaryPreOperatorKeyword;
+}
+
+{PostUnaryOp} {
+	yylval.str = yytext;
+	return unaryPostOperatorKeyword;
 }
 
 {BinaryOp0} {
