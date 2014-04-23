@@ -12,7 +12,7 @@ Clone or unzip the source somewhere.
     $ cd Hellman
     $ git clone https://github.com/MattWesemann/Compiler.git
 
-Make a build directory. It should work in or out of the source directory, but naming doesn't matter. I like keeping everything packaged under another directory, but they can be anywehre.
+Make a build directory (naming doesn't matter). While the code should work in or out of the source directory, it may be more convenient to keep everything packaged under another directory.
 
     $ mkdir build
     $ cd build
@@ -58,7 +58,7 @@ The binary you're interested in is called `frontend`.
     216 217 215
 
 
-What we're suppose to do
+What we're supposed to do
 ------------------------
 
 - Parse a language like this:
