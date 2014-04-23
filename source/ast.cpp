@@ -89,6 +89,8 @@ string to_string(ASTNode::Type type) {
 	case ASTNode::Return:       return "Return";
 	case ASTNode::Symbol:       return "Symbol";
 	case ASTNode::While:        return "While";
+	case ASTNode::For:          return "For";
+	case ASTNode::DoWhile:      return "DoWhile";
 	default:
 		return "? (" + to_string(type) + ")";
 	}

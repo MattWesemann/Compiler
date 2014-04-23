@@ -43,6 +43,8 @@
 %token <str>        ifKeyword
 %token <str>        returnKeyword
 %token <str>        whileKeyword
+%token <str>        forKeyword
+%token <str>        doKeyword
 
 %type <node>        Assignment
 %type <node>        Block
@@ -74,6 +76,10 @@
 %type <node>        Type
 %type <node>        Value
 %type <node>        WhileStatement
+%type <node>        DoWhileStatement
+%type <node>        ForStatement
+%type <node>        ForExpression
+%type <node>        ForAssignment
 %type <str>         assignmentOperator
 %type <str>         unaryPreOperator
 
@@ -128,6 +134,12 @@ Statement:
     $$ = $1;
   }
 | WhileStatement {
+    $$ = $1;
+  }
+| DoWhileStatement {
+    $$ = $1;
+  }
+| ForStatement {
     $$ = $1;
   }
 | ReturnStatement {
@@ -431,6 +443,43 @@ WhileStatement:
     $$ = ASTNode(ASTNode::While);
     $$.addChild($3);
     $$.addChild($5);
+  }
+;
+
+DoWhileStatement:
+  doKeyword Block whileKeyword '(' Expression ')' ';' {
+    $$ = ASTNode(ASTNode::DoWhile);
+    $$.addChild($2);
+    $$.addChild($5);
+  }
+;
+
+ForStatement:
+  forKeyword '(' ForAssignment ';' ForExpression ';' ForExpression ')' Block {
+    $$ = ASTNode(ASTNode::For);
+    $$.addChild($3);
+    $$.addChild($5);
+	$$.addChild($7);
+	$$.addChild($9);
+  }
+;
+
+ForAssignment:
+  Declarations {
+    $$ = $1;
+  }
+| ForExpression {
+    $$ = $1;
+  }
+;
+
+// can be an expression or lambda
+ForExpression:
+  Expression {
+    $$ = $1;
+  }
+| {
+    $$ = ASTNode(ASTNode::Empty);
   }
 ;
 

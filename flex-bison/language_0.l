@@ -40,6 +40,12 @@ AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 "const" {
 	return constQualifier;
 }
+"for" {
+	return forKeyword;
+}
+"do" {
+	return doKeyword;
+}
 
 
 [0-9]+ {

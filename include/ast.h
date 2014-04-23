@@ -24,6 +24,8 @@ public:
 		Return,
 		Symbol,
 		While,
+		For,
+		DoWhile
 	};
 
 	// This guarentees a unique number for every node created,
