@@ -9,13 +9,13 @@
 using namespace std;
 
 ASTNode* root = nullptr;
-ofstream cerrFile;
+ofstream* cerrFile;
 
 // Not declared in the header.
 int yyparse();
 
 void handleError(const char* msg){
-	cerrFile << "[Error] " << msg << endl;
+	*cerrFile << "[Error] " << msg << endl;
 }
 
 int main(int argc, char* argv[]) {
@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 
 	string outname(argv[1]);
 
-	cerrFile = ofstream(outname + ".err");
+	cerrFile = new ofstream(outname + ".err");
 
 	//yydebug = 1;
 	int ret = 0;
@@ -36,13 +36,13 @@ int main(int argc, char* argv[]) {
 		// Silence is golden.
 		break;
 	case 1:
-		cerrFile << "Syntax error!\n";
+		*cerrFile << "Syntax error!\n";
 		return ret;
 	case 2:
-		cerrFile << "Memory error!\n";
+		*cerrFile << "Memory error!\n";
 		return ret;
 	default:
-		cerrFile << "Unknown error.\n";
+		*cerrFile << "Unknown error.\n";
 		return ret;
 	}
 
