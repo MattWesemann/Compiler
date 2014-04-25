@@ -1,6 +1,5 @@
 %{
   #include "ast.h"
-  #include <iostream>
   #include <string>
 
   // From flex
@@ -86,7 +85,6 @@
 %code requires {
   #include <memory>
   #include "ast.h"
-  using namespace std;
 
   extern ASTNode* root;
 
@@ -94,7 +92,7 @@
   struct YYSTYPE {
     int integer;
     double real;
-    string str;
+    std::string str;
     ASTNode* node;
 
     // We should probably have a reasonable default constructor.
@@ -386,14 +384,14 @@ unaryPreOperator:
     $$ = $1;
   }
 | '*' {
-    $$ = string("*");
+    $$ = std::string("*");
   }
 ;
 
 // required because '=' needs special significance in assignment and therefore can't be apart of the assignmentOperatorKeyword regex
 assignmentOperator:
   '=' {
-    $$ = string("=");
+    $$ = std::string("=");
   }
 | assignmentOperatorKeyword {
     $$ = $1;
@@ -411,10 +409,10 @@ Value:
 Literal:
 // TODO: const char* and char literals. (Eventually)
   integer {
-    $$ = new LiteralNode(to_string($1));
+    $$ = new LiteralNode(std::to_string($1));
   }
 | real {
-    $$ = new LiteralNode(to_string($1));
+    $$ = new LiteralNode(std::to_string($1));
   }
 ;
 
@@ -495,6 +493,7 @@ ReturnStatement:
 
 %%
 
+void handleError(const char* msg);
 void yyerror(const char* msg) {
-	cerr << "[Error] " << msg << endl;
-  }
+	handleError(msg);
+}

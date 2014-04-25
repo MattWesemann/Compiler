@@ -1,6 +1,9 @@
 #include "symbolVisitor.h"
+#include <fstream>
 
 using namespace std;
+
+extern ofstream cerrFile;
 
 SymbolVisitor::SymbolVisitor(){
 	current = global = make_shared<Scope>();
@@ -21,7 +24,7 @@ void SymbolVisitor::visit(DeclarationsNode* node){
 		try {
 			current->createSymbol(node->children[i]->str, attr);
 		} catch (exception&) {
-			cerr << "Symbol already exists: " << node->children[i]->str << endl;
+			cerrFile << "Symbol already exists: " << node->children[i]->str << endl;
 		}	
 	}
 }
@@ -29,5 +32,5 @@ void SymbolVisitor::visit(DeclarationsNode* node){
 void SymbolVisitor::visit(SymbolNode* node){
 	auto sym = current->getSymbol(node->str);
 	if (sym.get() == nullptr)
-		cerr << "Error symbol does not exist: " << sym->getName() << endl;
+		cerrFile << "Error symbol does not exist: " << sym->getName() << endl;
 }
