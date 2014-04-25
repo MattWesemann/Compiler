@@ -3,7 +3,6 @@
 #include <iostream>
 #include <fstream>
 #include "symbolVisitor.h"
-#include 
 
 using namespace std;
 
@@ -14,14 +13,14 @@ int yyparse();
 
 int main(int argc, char* argv[]) {
 
-	if(argc != 2){f
+	if(argc != 2){
 		cout << "You must pass an output filename." << endl;
 		return 1;
 	}
 
 	//yydebug = 1;
 	int ret = 0;
-	switch (ret = yyparse()) {rdr
+	switch (ret = yyparse()) {
 	case 0:
 		// Silence is golden.
 		break;
@@ -42,7 +41,7 @@ int main(int argc, char* argv[]) {
 
 	SymbolVisitor symVisit;
 
-	if (root != nullptr)dfsdg
+	if (root != nullptr)
 		((Visitor*) &symVisit)->visit(root);
 
 
