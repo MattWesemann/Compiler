@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "scope.h"
 #include "visitor.h"
 
 class ASTNode {
@@ -46,6 +47,11 @@ public:
 
 	// This is used for Sethi-Ullman
 	int regCount;
+
+
+	// This allows the ast to know what scope it's in. 
+
+	std::shared_ptr<Scope> nodeScope;
 
 	// Some nodes (e.g. int and float literals) need to save data, but not
 	//   as strings.
