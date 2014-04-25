@@ -30,6 +30,9 @@ void SymbolVisitor::visit(DeclarationsNode* node){
 	}
 	
 	node->nodeScope = current;
+	
+	for ( auto child : node->children) 
+		Visitor::visit(child);
 }
 
 void SymbolVisitor::visit(SymbolNode* node){
@@ -66,7 +69,7 @@ void SymbolVisitor::visit(ElseNode* node){
 }
 
 
-void SymbolVisitor::visit(ExpressionNode node){
+void SymbolVisitor::visit(ExpressionNode* node){
 	node->nodeScope = current;
 	for ( auto child : node->children) {
 		Visitor::visit(child);
@@ -113,12 +116,6 @@ void SymbolVisitor::visit(ReturnNode* node){
 	}
 }
 
-void SymbolVisitor::visit(SymbolNode* node){
-	node->nodeScope = current;
-	for ( auto child : node->children) {
-		Visitor::visit(child);
-	}
-}
 
 void SymbolVisitor::visit(WhileNode* node){
 	node->nodeScope = current;
