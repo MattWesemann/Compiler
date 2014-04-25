@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "visitor.h"
 
 class ASTNode {
 
@@ -35,7 +36,7 @@ public:
 	// TODO: Work around copy construtors creating false nodes.
 	static int nodeCount;
 
-	void addChild(const ASTNode& node);
+	void addChild(ASTNode* node);
 
 	Type type;
 	size_t uniqueID;
@@ -43,32 +44,68 @@ public:
 	// This is only used by Symbol.
 	bool isConst;
 
+	// This is used for Sethi-Ullman
+	int regCount;
+
 	// Some nodes (e.g. int and float literals) need to save data, but not
 	//   as strings.
 	// TODO: More flexibility in type stored.
 	std::string str;
 
 	// TODO: Children should know about their parent.
-	std::vector<ASTNode> children;
+	std::vector<ASTNode*> children;
 
-	ASTNode(Type type = Empty, std::string str = "")
-	: type(type), isConst(false), str(str) {
+	ASTNode(std::string str = "")
+		: isConst(false), str(str) {
 		nodeCount += 1;
 		uniqueID = nodeCount;
+		type = Type::Empty;
 	}
 
 	// Modifies a vector to add copies of all children, grand children, etc.
 	//   The order is the result of a depth-first search.
-	void find_all_children(std::vector<ASTNode>& nodes) const;
+	void find_all_children(std::vector<ASTNode*>& nodes) const;
 
 	// Prints the tree in accordance with Hellman's specification.
 	void print_tree(std::ostream& os);
 
 	void makeConst();
+
+	virtual void accept(Visitor* visitor) = 0;
+	virtual std::string to_string() const = 0;
 };
 
-std::string to_string(const ASTNode& node);
-std::string to_string(ASTNode::Type type);
+std::string to_string(const ASTNode* node);
 
 bool operator==(const ASTNode& a, const ASTNode& b);
 
+#define NODEDEFINE(name)                                    \
+	class name ## Node : public ASTNode {                   \
+		public:                                             \
+		name ## Node(std::string str = "") : ASTNode(str){} \
+		void accept(Visitor* visitor) override {            \
+			visitor->visit(this);                           \
+		}                                                   \
+		std::string to_string() const { 					\
+			if(type == Type::Program)                       \
+				return "Program";                           \
+			return #name;								    \
+		}													\
+	}
+
+NODEDEFINE(Empty);
+NODEDEFINE(Assignment);
+NODEDEFINE(Block);
+NODEDEFINE(Declaration);
+NODEDEFINE(Declarations);
+NODEDEFINE(Else);
+NODEDEFINE(Expression);
+NODEDEFINE(If);
+NODEDEFINE(Literal);
+NODEDEFINE(Operator);
+NODEDEFINE(Program);
+NODEDEFINE(Return);
+NODEDEFINE(Symbol);
+NODEDEFINE(While);
+NODEDEFINE(For);
+NODEDEFINE(DoWhile);

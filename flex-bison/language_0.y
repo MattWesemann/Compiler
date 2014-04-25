@@ -84,6 +84,7 @@
 %type <str>         unaryPreOperator
 
 %code requires {
+  #include <memory>
   #include "ast.h"
   using namespace std;
 
@@ -92,7 +93,7 @@
     int integer;
     double real;
     string str;
-    ASTNode node;
+    ASTNode* node;
 
     // We should probably have a reasonable default constructor.
     YYSTYPE()
@@ -105,18 +106,18 @@
 Program:
   Statements {
     $$ = $1;
-    $$.type = ASTNode::Program;
-    $$.print_tree(cout);
+    $$->type = ASTNode::Program;
+    $$->print_tree(cout);
   }
 ;
 
 Statements:
   Statements Statement {
-    $$.addChild($2);
+    $$->addChild($2);
   }
 | Statement {
-    $$ = ASTNode(ASTNode::Block);
-    $$.addChild($1);
+    $$ = new BlockNode();
+    $$->addChild($1);
   }
 ;
 
@@ -146,30 +147,30 @@ Statement:
     $$ = $1;
   }
 | ';' {
-    $$ = ASTNode(ASTNode::Expression);
+    $$ = new ExpressionNode();
   }
 ;
 
 Declarations:
   Type DeclList {
-    $$ = ASTNode(ASTNode::Declarations);
-	$$.addChild($1);
-	for(auto& child: $2.children){
-		$$.addChild(child);
+    $$ = new DeclarationsNode();
+	$$->addChild($1);
+	for(auto& child: $2->children){
+		$$->addChild(child);
 	}
   }
 ;
 
 DeclList:
   Declaration {
-    if($$.type != ASTNode::Declaration){
-	  $$ = ASTNode(ASTNode::Declaration);
+    if($$->type != ASTNode::Declaration){
+	  $$ = new DeclarationNode();
 	} 
 
-    $$.addChild($1);
+    $$->addChild($1);
   }
 | DeclList ',' Declaration {
-    $$.addChild($3);
+    $$->addChild($3);
   }
 ;
 
@@ -178,25 +179,25 @@ Declaration:
     $$ = $1;
   }
 | identifier {
-    $$ = ASTNode(ASTNode::Symbol, $1);
+    $$ = new SymbolNode($1);
   }
 ;
 
 Type:
   constQualifier Type {
     $$ = $2;
-    $$.makeConst();
+    $$->makeConst();
   }
 | identifier {
-    $$ = ASTNode(ASTNode::Symbol, $1);
+    $$ = new SymbolNode($1);
   }
 ;
 
 Assignment:
   identifier '=' Expression {
-    $$ = ASTNode(ASTNode::Assignment);
-    $$.addChild(ASTNode(ASTNode::Symbol, $1));
-    $$.addChild($3);
+    $$ = new AssignmentNode();
+    $$->addChild(new SymbolNode($1));
+    $$->addChild($3);
   }
 ;
 
@@ -205,7 +206,7 @@ Block:
     $$ = $2;
   }
   | '{' '}' {
-    $$ = ASTNode(ASTNode::Block);
+    $$ = new BlockNode();
   }
 ;
 
@@ -214,9 +215,9 @@ Expression:
 
   // this rule is right recursive because it is right associative.
   TermPrecedence9 assignmentOperator Expression {
-    $$ = ASTNode(ASTNode::Assignment, $2);
-    $$.addChild($1);
-    $$.addChild($3);
+    $$ = new AssignmentNode($2);
+    $$->addChild($1);
+    $$->addChild($3);
   }
 | TermPrecedence9 {
     $$ = $1;
@@ -225,9 +226,9 @@ Expression:
 
 TermPrecedence9:
   TermPrecedence9 binaryOperatorKeyword9 TermPrecedence8 {
-    $$ = ASTNode(ASTNode::Expression, $2);
-    $$.addChild($1);
-    $$.addChild($3);
+    $$ = new ExpressionNode($2);
+    $$->addChild($1);
+    $$->addChild($3);
   }
 | TermPrecedence8 {
     $$ = $1;
@@ -236,9 +237,9 @@ TermPrecedence9:
 
 TermPrecedence8:
   TermPrecedence8 binaryOperatorKeyword8 TermPrecedence7 {
-    $$ = ASTNode(ASTNode::Expression, $2);
-    $$.addChild($1);
-    $$.addChild($3);
+    $$ = new ExpressionNode($2);
+    $$->addChild($1);
+    $$->addChild($3);
   }
 | TermPrecedence7 {
     $$ = $1;
@@ -247,9 +248,9 @@ TermPrecedence8:
 
 TermPrecedence7:
   TermPrecedence7 binaryOperatorKeyword7 TermPrecedence6 {
-    $$ = ASTNode(ASTNode::Expression, $2);
-    $$.addChild($1);
-    $$.addChild($3);
+    $$ = new ExpressionNode($2);
+    $$->addChild($1);
+    $$->addChild($3);
   }
 | TermPrecedence6 {
     $$ = $1;
@@ -258,9 +259,9 @@ TermPrecedence7:
 
 TermPrecedence6:
   TermPrecedence6 binaryOperatorKeyword6 TermPrecedence5 {
-    $$ = ASTNode(ASTNode::Expression, $2);
-    $$.addChild($1);
-    $$.addChild($3);
+    $$ = new ExpressionNode($2);
+    $$->addChild($1);
+    $$->addChild($3);
   }
 | TermPrecedence5 {
     $$ = $1;
@@ -269,9 +270,9 @@ TermPrecedence6:
 
 TermPrecedence5:
   TermPrecedence5 binaryOperatorKeyword5 TermPrecedence4 {
-    $$ = ASTNode(ASTNode::Expression, $2);
-    $$.addChild($1);
-    $$.addChild($3);
+    $$ = new ExpressionNode($2);
+    $$->addChild($1);
+    $$->addChild($3);
   }
 | TermPrecedence4 {
     $$ = $1;
@@ -280,9 +281,9 @@ TermPrecedence5:
 
 TermPrecedence4:
   TermPrecedence4 binaryOperatorKeyword4 TermPrecedence3 {
-    $$ = ASTNode(ASTNode::Expression, $2);
-    $$.addChild($1);
-    $$.addChild($3);
+    $$ = new ExpressionNode($2);
+    $$->addChild($1);
+    $$->addChild($3);
   }
 | TermPrecedence3 {
     $$ = $1;
@@ -291,9 +292,9 @@ TermPrecedence4:
 
 TermPrecedence3:
   TermPrecedence3 binaryOperatorKeyword3 TermPrecedence2 {
-    $$ = ASTNode(ASTNode::Expression, $2);
-    $$.addChild($1);
-    $$.addChild($3);
+    $$ = new ExpressionNode($2);
+    $$->addChild($1);
+    $$->addChild($3);
   }
 | TermPrecedence2 {
     $$ = $1;
@@ -302,9 +303,9 @@ TermPrecedence3:
 
 TermPrecedence2:
   TermPrecedence2 binaryOperatorKeyword2 TermPrecedence1 {
-    $$ = ASTNode(ASTNode::Expression, $2);
-    $$.addChild($1);
-    $$.addChild($3);
+    $$ = new ExpressionNode($2);
+    $$->addChild($1);
+    $$->addChild($3);
   }
 | TermPrecedence1 {
     $$ = $1;
@@ -313,9 +314,9 @@ TermPrecedence2:
 
 TermPrecedence1:
   TermPrecedence1 binaryOperatorKeyword1 TermPrecedence0 {
-    $$ = ASTNode(ASTNode::Expression, $2);
-    $$.addChild($1);
-    $$.addChild($3);
+    $$ = new ExpressionNode($2);
+    $$->addChild($1);
+    $$->addChild($3);
   }
 | TermPrecedence0 {
     $$ = $1;
@@ -324,9 +325,9 @@ TermPrecedence1:
 
 TermPrecedence0:
   TermPrecedence0 binaryOperatorKeyword0 TermUnary {
-    $$ = ASTNode(ASTNode::Expression, $2);
-    $$.addChild($1);
-    $$.addChild($3);
+    $$ = new ExpressionNode($2);
+    $$->addChild($1);
+    $$->addChild($3);
   }
 | TermUnary {
     $$ = $1;
@@ -347,15 +348,15 @@ TermUnary:
 
 TermPreUnary:
   unaryPreOperator PrimaryTerm {
-    $$ = ASTNode(ASTNode::Expression, $1);
-    $$.addChild($2);
+    $$ = new ExpressionNode($1);
+    $$->addChild($2);
   }
 ;
 
 TermPostUnary:
   PrimaryTerm unaryPostOperatorKeyword {
-    $$ = ASTNode(ASTNode::Expression, $2);
-    $$.addChild($1);
+    $$ = new ExpressionNode($2);
+    $$->addChild($1);
   }
 ;
 
@@ -398,7 +399,7 @@ assignmentOperator:
 
 Value:
   identifier {
-    $$ = ASTNode(ASTNode::Symbol, $1);
+    $$ = new SymbolNode($1);
   }
 | Literal {
     $$ = $1;
@@ -408,24 +409,24 @@ Value:
 Literal:
 // TODO: const char* and char literals. (Eventually)
   integer {
-    $$ = ASTNode(ASTNode::Symbol, to_string($1));
+    $$ = new SymbolNode(to_string($1));
   }
 | real {
-    $$ = ASTNode(ASTNode::Symbol, to_string($1));
+    $$ = new SymbolNode(to_string($1));
   }
 ;
 
 IfStatement:
   ifKeyword '(' Expression ')' Block {
-    $$ = ASTNode(ASTNode::If);
-    $$.addChild($3);
-    $$.addChild($5);
+    $$ = new IfNode();
+    $$->addChild($3);
+    $$->addChild($5);
   }
 | ifKeyword '(' Expression ')' Block ElseStatement  {
-    $$ = ASTNode(ASTNode::If);
-    $$.addChild($3);
-    $$.addChild($5);
-    $$.addChild($6);
+    $$ = new IfNode();
+    $$->addChild($3);
+    $$->addChild($5);
+    $$->addChild($6);
   }
 ;
 
@@ -440,27 +441,27 @@ ElseStatement:
 
 WhileStatement:
   whileKeyword '(' Expression ')' Block {
-    $$ = ASTNode(ASTNode::While);
-    $$.addChild($3);
-    $$.addChild($5);
+    $$ = new WhileNode();
+    $$->addChild($3);
+    $$->addChild($5);
   }
 ;
 
 DoWhileStatement:
   doKeyword Block whileKeyword '(' Expression ')' ';' {
-    $$ = ASTNode(ASTNode::DoWhile);
-    $$.addChild($2);
-    $$.addChild($5);
+    $$ = new DoWhileNode();
+    $$->addChild($2);
+    $$->addChild($5);
   }
 ;
 
 ForStatement:
   forKeyword '(' ForAssignment ';' ForExpression ';' ForExpression ')' Block {
-    $$ = ASTNode(ASTNode::For);
-    $$.addChild($3);
-    $$.addChild($5);
-	$$.addChild($7);
-	$$.addChild($9);
+    $$ = new ForNode();
+    $$->addChild($3);
+    $$->addChild($5);
+	$$->addChild($7);
+	$$->addChild($9);
   }
 ;
 
@@ -479,14 +480,14 @@ ForExpression:
     $$ = $1;
   }
 | {
-    $$ = ASTNode(ASTNode::Empty);
+    $$ = new EmptyNode();
   }
 ;
 
 ReturnStatement:
   returnKeyword Expression ';' {
-    $$ = ASTNode(ASTNode::Return);
-    $$.addChild($2);
+    $$ = new ReturnNode();
+    $$->addChild($2);
   }
 ;
 
