@@ -20,10 +20,11 @@ AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 
 %%
 
-\/\/[^\n] {
+\/\/[^\n]* {
   //eol comments
   continue;
 }
+
 [ \n\t\r]+ {
 	// Eat whitespace.
 	continue;
