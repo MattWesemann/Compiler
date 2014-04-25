@@ -83,7 +83,7 @@ bool operator==(const ASTNode& a, const ASTNode& b);
 	class name ## Node : public ASTNode {                   \
 		public:                                             \
 		name ## Node(std::string str = "") : ASTNode(str){} \
-		void accept(Visitor* visitor) override {            \
+		void accept(Visitor* visitor) {            \
 			visitor->visit(this);                           \
 		}                                                   \
 		std::string to_string() const { 					\

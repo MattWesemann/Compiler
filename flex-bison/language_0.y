@@ -109,7 +109,6 @@ Program:
   Statements {
     root = $$ = $1;
     $$->type = ASTNode::Program;
-    $$->print_tree(cout);
   }
 ;
 

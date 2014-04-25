@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Scope::Scope() : Scope(nullptr) {
+Scope::Scope() : parent(nullptr) {
 }
 
 Scope::Scope(Scope* parent){

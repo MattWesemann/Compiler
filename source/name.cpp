@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Name::Name() : Name(0, 0){}
+Name::Name() : offset(0) , len(0){}
 
 Name::Name(size_t offset, size_t len){
 	this->offset = offset;

@@ -7,9 +7,9 @@ class SymbolVisitor : public Visitor {
 public:
 	SymbolVisitor();
 
-	void visit(BlockNode* node) override;
-	void visit(DeclarationsNode* node) override;
-	void visit(SymbolNode* node) override;
+	void visit(BlockNode* node);
+	void visit(DeclarationsNode* node);
+	void visit(SymbolNode* node);
 
 private:
 

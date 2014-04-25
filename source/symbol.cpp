@@ -1,8 +1,8 @@
-#include "Symbol.h"
+#include "symbol.h"
 
 using namespace std;
 
-Symbol::Symbol(Name& name, Attributes& attributes){
+Symbol::Symbol(Name name, Attributes& attributes){
 	this->name = name;
 	this->attributes = attributes;
 }

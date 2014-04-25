@@ -1,5 +1,5 @@
-#include "SymbolTable.h"
-#include "Symbol.h"
+#include "symbolTable.h"
+#include "symbol.h"
 #include "namespace.h"
 #include <exception>
 
@@ -14,7 +14,7 @@ void SymbolTable::enterSymbol(string& name, Attributes& attributes) {
 		symbols[name] = make_shared<Symbol>(Namespace::instance()->add(name), attributes);
 	}
 	else {
-		throw exception(("Symbol already exists in table: " + name).c_str());
+		throw exception();
 	}
 }
 

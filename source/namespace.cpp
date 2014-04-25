@@ -30,7 +30,7 @@ Name Namespace::add(string name){
 
 string Namespace::get(size_t offset, size_t len){
 	if (offset + len > bytes.size())
-		throw new exception("invalid string");
+		throw exception();
 
 	return string(&bytes[offset], len);
 }

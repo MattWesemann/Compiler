@@ -6,7 +6,7 @@
 
 class Symbol {
 public:
-	Symbol(Name &name, Attributes& attributes);
+	Symbol(Name name, Attributes& attributes);
 
 	std::string getName();
 	Attributes& getAttributes();
