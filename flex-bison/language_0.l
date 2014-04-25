@@ -20,15 +20,15 @@ AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 
 %%
 
-
+\/\/[^\n] {
+  //eol comments
+  continue;
+}
 [ \n\t\r]+ {
 	// Eat whitespace.
 	continue;
 }
-\/\/.*$ {
-  //eol comments
-  continue;
-}
+
 "if" {
 	return ifKeyword;
 }
