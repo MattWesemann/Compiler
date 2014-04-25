@@ -88,6 +88,8 @@
   #include "ast.h"
   using namespace std;
 
+  extern ASTNode* root;
+
   // Structs, unlike unions, allow class members.
   struct YYSTYPE {
     int integer;
@@ -105,7 +107,7 @@
 
 Program:
   Statements {
-    $$ = $1;
+    root = $$ = $1;
     $$->type = ASTNode::Program;
     $$->print_tree(cout);
   }
@@ -196,6 +198,7 @@ Type:
 Assignment:
   identifier '=' Expression {
     $$ = new AssignmentNode();
+	$$->str = $1;  // this is only called for declarations and we need it for symbol table gen 
     $$->addChild(new SymbolNode($1));
     $$->addChild($3);
   }
@@ -409,10 +412,10 @@ Value:
 Literal:
 // TODO: const char* and char literals. (Eventually)
   integer {
-    $$ = new SymbolNode(to_string($1));
+    $$ = new LiteralNode(to_string($1));
   }
 | real {
-    $$ = new SymbolNode(to_string($1));
+    $$ = new LiteralNode(to_string($1));
   }
 ;
 

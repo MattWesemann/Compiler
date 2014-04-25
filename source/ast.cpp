@@ -54,7 +54,7 @@ string to_string(const ASTNode* node) {
 	// TODO: Stop copying over 200 nodes before any of the final ones,
 	//   which appear in the graph, are created.
 	// str += "#" + to_string(node.uniqueID) + " ";
-	if (node->to_string() != "Symbol") {
+	if (node->to_string() != "Literal" || node->to_string() != "Symbol") {
 	//if (node->type != ASTNode::Symbol) {
 		str += node->to_string();
 	}

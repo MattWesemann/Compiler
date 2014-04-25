@@ -1,5 +1,6 @@
 #include "SymbolTable.h"
 #include "Symbol.h"
+#include "namespace.h"
 #include <exception>
 
 using namespace std;
@@ -9,11 +10,11 @@ SymbolTable::SymbolTable() {
 }
 
 void SymbolTable::enterSymbol(string& name, Attributes& attributes) {
-	if (declaredLocally(name)) {
-		symbols[name] = make_shared<Symbol>(name, attributes);
+	if (!declaredLocally(name)) {
+		symbols[name] = make_shared<Symbol>(Namespace::instance()->add(name), attributes);
 	}
 	else {
-		throw new exception(("Symbol already exists in table: " + name).c_str());
+		throw exception(("Symbol already exists in table: " + name).c_str());
 	}
 }
 

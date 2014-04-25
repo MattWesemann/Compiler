@@ -17,7 +17,7 @@ Name Namespace::add(string name){
 		if (name[index] == bytes[i]){
 			index++;
 			if (index == name.length()){
-				return Name(i - index + 1, index, this);
+				return Name(i - index + 1, index);
 			}
 		}
 		else
@@ -25,7 +25,7 @@ Name Namespace::add(string name){
 	}
 
 	bytes.insert(bytes.end(), name.begin(), name.end());
-	return Name(bytes.size() - name.length(), name.length(), this);
+	return Name(bytes.size() - name.length(), name.length());
 }
 
 string Namespace::get(size_t offset, size_t len){
@@ -33,4 +33,15 @@ string Namespace::get(size_t offset, size_t len){
 		throw new exception("invalid string");
 
 	return string(&bytes[offset], len);
+}
+
+Namespace* Namespace::singleton = nullptr;
+Namespace* Namespace::instance(){
+	if (singleton == nullptr)
+		singleton = new Namespace();
+	return singleton;
+}
+
+void Namespace::clear(){
+	bytes.clear();
 }

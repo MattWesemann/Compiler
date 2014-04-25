@@ -3,14 +3,13 @@
 
 using namespace std;
 
-Name::Name() : Name(0, 0, nullptr){}
+Name::Name() : Name(0, 0){}
 
-Name::Name(size_t offset, size_t len, Namespace* space){
+Name::Name(size_t offset, size_t len){
 	this->offset = offset;
 	this->len = len;
-	this->space = space;
 }
 
 string Name::get(){
-	return space->get(offset, len);
+	return Namespace::instance()->get(offset, len);
 }

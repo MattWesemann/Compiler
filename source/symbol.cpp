@@ -2,13 +2,13 @@
 
 using namespace std;
 
-Symbol::Symbol(string& name, Attributes& attributes){
+Symbol::Symbol(Name& name, Attributes& attributes){
 	this->name = name;
 	this->attributes = attributes;
 }
 
 string Symbol::getName(){
-	return name;
+	return name.get();
 }
 
 Attributes& Symbol::getAttributes(){

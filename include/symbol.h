@@ -2,16 +2,17 @@
 
 #include <string>
 #include "attributes.h"
+#include "name.h"
 
 class Symbol {
 public:
-	Symbol(std::string &name, Attributes& attributes);
+	Symbol(Name &name, Attributes& attributes);
 
 	std::string getName();
 	Attributes& getAttributes();
 
 private:
-	std::string name;
+	Name name;
 	Attributes attributes;
 };
 
