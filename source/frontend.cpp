@@ -4,6 +4,7 @@
 #include <fstream>
 #include "symbolVisitor.h"
 #include <string>
+#include "constVisitor.h"
 
 
 using namespace std;
@@ -57,9 +58,20 @@ int main(int argc, char* argv[]) {
 	if (root != nullptr)
 		((Visitor*) &symVisit)->visit(root);
 
+	if (symVisit.hadError())
+		ret = 1;
+
+
+	ConstVisitor constvisit;
+	if (root != nullptr)
+		((Visitor*) &constvisit)->visit(root);
+
+	if (constvisit.hadError())
+		ret = 1;
+
 	// now that AST is done print finished tree
 	out = new ofstream(outname + ".a");
 	root->print_tree(*out);
 
-
+	return ret;
 }

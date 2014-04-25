@@ -5,7 +5,7 @@ using namespace std;
 
 extern ofstream* cerrFile;
 
-SymbolVisitor::SymbolVisitor(){
+SymbolVisitor::SymbolVisitor() : Visitor() {
 	current = global = make_shared<Scope>();
 }
 
@@ -20,11 +20,12 @@ void SymbolVisitor::visit(BlockNode* node){
 void SymbolVisitor::visit(DeclarationsNode* node){
 	Attributes attr;
 	attr.type = node->children[0]->str;
-	
+	attr.isConst = node->children[0]->isConst;
 	for (size_t i = 1; i < node->children.size(); ++i){
 		try {
 			current->createSymbol(node->children[i]->str, attr);
 		} catch (exception&) {
+			errorFlag = true;
 			*cerrFile << "Symbol already exists: " << node->children[i]->str << endl;
 		}	
 	}
@@ -38,12 +39,16 @@ void SymbolVisitor::visit(DeclarationsNode* node){
 void SymbolVisitor::visit(SymbolNode* node){
 	auto sym = current->getSymbol(node->str);
 	node->nodeScope = current;
-	if (sym.get() == nullptr)
+	if (sym.get() == nullptr){
+		errorFlag = true;
 		*cerrFile << "Error symbol does not exist: " << sym->getName() << endl;
+	}
 }
 
-
-
+void SymbolVisitor::visit(TypeNode* node){
+	auto sym = current->getSymbol(node->str);
+	node->nodeScope = current;
+}
 
 void SymbolVisitor::visit(EmptyNode* node){
 	node->nodeScope = current;

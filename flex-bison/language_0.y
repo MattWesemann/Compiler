@@ -188,7 +188,7 @@ Type:
     $$->makeConst();
   }
 | identifier {
-    $$ = new SymbolNode($1);
+    $$ = new TypeNode($1);
   }
 ;
 

@@ -17,13 +17,17 @@ classdef(Operator);
 classdef(Program);
 classdef(Return);
 classdef(Symbol);
+classdef(Type);
 classdef(While);
 classdef(For);
 classdef(DoWhile);
 
 class Visitor {
 public:
+	Visitor();
+
 	virtual void visit(ASTNode* node);
+	virtual bool hadError();
 
 #define visitFn(name) virtual void visit(name ## Node *node)
 
@@ -40,7 +44,11 @@ public:
 	visitFn(Program);
 	visitFn(Return);
 	visitFn(Symbol);
+	visitFn(Type);
 	visitFn(While);
 	visitFn(For);
 	visitFn(DoWhile);
+
+protected:
+	bool errorFlag;
 };

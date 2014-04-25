@@ -18,13 +18,12 @@ public:
 	void visit(ProgramNode* node);
 	void visit(ReturnNode* node);
 	void visit(SymbolNode* node);
+	void visit(TypeNode* node);
 	void visit(WhileNode* node);
 	void visit(ForNode* node);
 	void visit(DoWhileNode* node);
 
-
 private:
-
 	std::shared_ptr<Scope> global;
 	std::shared_ptr<Scope> current;
 };

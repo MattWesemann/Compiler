@@ -6,6 +6,7 @@
 #include <vector>
 #include "scope.h"
 #include "visitor.h"
+#include <memory>
 
 class ASTNode {
 
@@ -50,7 +51,6 @@ public:
 
 
 	// This allows the ast to know what scope it's in. 
-
 	std::shared_ptr<Scope> nodeScope;
 
 	// Some nodes (e.g. int and float literals) need to save data, but not
@@ -112,6 +112,7 @@ NODEDEFINE(Operator);
 NODEDEFINE(Program);
 NODEDEFINE(Return);
 NODEDEFINE(Symbol);
+NODEDEFINE(Type);
 NODEDEFINE(While);
 NODEDEFINE(For);
 NODEDEFINE(DoWhile); 
