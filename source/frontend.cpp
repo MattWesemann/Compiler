@@ -5,6 +5,7 @@
 #include "symbolVisitor.h"
 #include <string>
 
+
 using namespace std;
 
 ASTNode* root = nullptr;
@@ -14,13 +15,13 @@ ofstream cerrFile;
 int yyparse();
 
 void handleError(const char* msg){
-	cerrFile << "[Error] " << msg << std::endl;
+	cerrFile << "[Error] " << msg << endl;
 }
 
 int main(int argc, char* argv[]) {
 
 	if(argc != 2){
-		cerr << "You must pass an output filename." << std::endl;
+		cerr << "You must pass an output filename." << endl;
 		return 1;
 	}
 
