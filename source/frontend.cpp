@@ -48,9 +48,9 @@ int main(int argc, char* argv[]) {
 
 
 
-	ofstream out(outname + ".p");
+	ofstream* out = new ofstream(outname + ".p");
 
-	root->print_tree(out);
+	root->print_tree(*out);
 
 	SymbolVisitor symVisit;
 
@@ -58,8 +58,8 @@ int main(int argc, char* argv[]) {
 		((Visitor*) &symVisit)->visit(root);
 
 	// now that AST is done print finished tree
-	out = ofstream(outname + ".a");
-	root->print_tree(out);
+	out = new ofstream(outname + ".a");
+	root->print_tree(*out);
 
 
 }
