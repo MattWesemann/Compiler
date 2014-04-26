@@ -103,6 +103,7 @@ add_executable(frontend
 	source/symbolVisitor.cpp
 	source/constVisitor.cpp
 	source/registerVisitor.cpp
+	source/IRGenerator.cpp
 	${BIN}/flex-bison-autogen/language_0_scanner.cpp
 	${BIN}/flex-bison-autogen/language_0_parser.cpp
 
@@ -119,6 +120,7 @@ add_executable(frontend
 	include/symbolVisitor.h
 	include/constVisitor.h
 	include/registerVisitor.h
+	include/IRGenerator.h
 
 	# Flex/Bison files.
 	flex-bison/language_0.l

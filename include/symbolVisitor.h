@@ -26,4 +26,5 @@ public:
 private:
 	std::shared_ptr<Scope> global;
 	std::shared_ptr<Scope> current;
+	int memOffset;
 };

@@ -7,6 +7,7 @@ extern ofstream* cerrFile;
 
 SymbolVisitor::SymbolVisitor() : Visitor() {
 	current = global = make_shared<Scope>();
+	memOffset = 20 * 1024;  // arbitrary start at 20k
 }
 
 void SymbolVisitor::visit(BlockNode* node){
@@ -23,7 +24,9 @@ void SymbolVisitor::visit(DeclarationsNode* node){
 	attr.isConst = node->children[0]->isConst;
 	for (size_t i = 1; i < node->children.size(); ++i){
 		try {
+			attr.memLoc = memOffset;
 			current->createSymbol(node->children[i]->str, attr);
+			memOffset += 4; // ints are size 4 for now
 		} catch (exception&) {
 			errorFlag = true;
 			*cerrFile << "Symbol already exists: " << node->children[i]->str << " at line no: " << node->children[i]->lineno << endl;

@@ -7,4 +7,5 @@ public:
 	Attributes();
 	std::string type;
 	bool isConst;
+	int memLoc;
 };

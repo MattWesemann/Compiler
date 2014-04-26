@@ -12,7 +12,7 @@ class ASTNode {
 
 public:
 	// When adding to this, remember to adjust std::to_string in ast.cpp!
-	enum Type {
+	enum NodeType {
 		Empty,
 		Assignment,
 		Block,
@@ -26,6 +26,7 @@ public:
 		Program,
 		Return,
 		Symbol,
+		Type,
 		While,
 		For,
 		DoWhile
@@ -40,14 +41,14 @@ public:
 
 	void addChild(ASTNode* node);
 
-	Type type;
+	NodeType type;
 	size_t uniqueID;
 
 	// This is only used by Symbol.
 	bool isConst;
 
 	// This is used for Sethi-Ullman
-	int regCount;
+	size_t regCount;
 
 
 	// This allows the ast to know what scope it's in. 
@@ -65,7 +66,7 @@ public:
 		: isConst(false), str(str) {
 		nodeCount += 1;
 		uniqueID = nodeCount;
-		type = Type::Empty;
+		type = NodeType::Empty;
 		regCount = 0;
 	}
 
@@ -81,6 +82,7 @@ public:
 
 	virtual void accept(Visitor* visitor) = 0;
 	virtual std::string to_string() const = 0;
+	virtual ASTNode::NodeType to_type() = 0;
 };
 
 std::string to_string(const ASTNode* node);
@@ -91,14 +93,17 @@ bool operator==(const ASTNode& a, const ASTNode& b);
 	class name ## Node : public ASTNode {                   \
 		public:                                             \
 		name ## Node(std::string str = "") : ASTNode(str){} \
-		void accept(Visitor* visitor) {            \
+		void accept(Visitor* visitor) {                     \
 			visitor->visit(this);                           \
 		}                                                   \
 		std::string to_string() const { 					\
-			if(type == Type::Program)                       \
+			if(type == NodeType::Program)                   \
 				return "Program";                           \
 			return #name;								    \
 		}													\
+		ASTNode::NodeType to_type() {                       \
+			return ASTNode::NodeType::name;                 \
+		}                                                   \
 	}
 
 NODEDEFINE(Empty);

@@ -5,12 +5,14 @@
 #include "symbolVisitor.h"
 #include <string>
 #include "constVisitor.h"
+#include "IRGenerator.h"
 
 
 using namespace std;
 
 ASTNode* root = nullptr;
 ofstream* cerrFile;
+
 
 // Not declared in the header.
 int yyparse();
@@ -73,6 +75,11 @@ int main(int argc, char* argv[]) {
 	// now that AST is done print finished tree
 	out = new ofstream(outname + ".a");
 	root->print_tree(*out);
+
+	ofstream irOut(outname + ".ir");
+
+	IRGeneratorVisitor irVisit(&irOut);
+	((Visitor*) &constvisit)->visit(root);
 
 	return ret;
 }
