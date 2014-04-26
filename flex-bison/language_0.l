@@ -1,4 +1,5 @@
 %option noyywrap
+%option yylineno
 %{
 	#include "language_0_parser.hpp"
 %}

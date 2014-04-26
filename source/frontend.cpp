@@ -15,8 +15,8 @@ ofstream* cerrFile;
 // Not declared in the header.
 int yyparse();
 
-void handleError(const char* msg){
-	*cerrFile << "[Error] " << msg << endl;
+void handleError(const char* msg, int lineno){
+	*cerrFile << "[Error] " << msg << " on line " << lineno << endl;
 }
 
 int main(int argc, char* argv[]) {

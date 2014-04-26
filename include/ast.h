@@ -77,6 +77,7 @@ public:
 	void print_tree(std::ostream& os);
 
 	void makeConst();
+	int lineno;
 
 	virtual void accept(Visitor* visitor) = 0;
 	virtual std::string to_string() const = 0;

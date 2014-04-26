@@ -4,6 +4,7 @@
 
   // From flex
   int yylex();
+  int yyget_lineno();
 
   void yyerror(const char*);
 %}
@@ -116,6 +117,7 @@ Statements:
   }
 | Statement {
     $$ = new BlockNode();
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
   }
 ;
@@ -147,24 +149,27 @@ Statement:
   }
 | ';' {
     $$ = new ExpressionNode();
+    $$->lineno = yyget_lineno();
   }
 ;
 
 Declarations:
   Type DeclList {
     $$ = new DeclarationsNode();
-	$$->addChild($1);
-	for(auto& child: $2->children){
-		$$->addChild(child);
-	}
+    $$->lineno = yyget_lineno();
+	  $$->addChild($1);
+	  for(auto& child: $2->children){
+		  $$->addChild(child);
+	  }
   }
 ;
 
 DeclList:
   Declaration {
     if($$->type != ASTNode::Declaration){
-	  $$ = new DeclarationNode();
-	} 
+	    $$ = new DeclarationNode();
+      $$->lineno = yyget_lineno();
+	  } 
 
     $$->addChild($1);
   }
@@ -179,6 +184,7 @@ Declaration:
   }
 | identifier {
     $$ = new SymbolNode($1);
+    $$->lineno = yyget_lineno();
   }
 ;
 
@@ -189,13 +195,15 @@ Type:
   }
 | identifier {
     $$ = new TypeNode($1);
+    $$->lineno = yyget_lineno();
   }
 ;
 
 Assignment:
   identifier '=' Expression {
     $$ = new AssignmentNode();
-	$$->str = $1;  // this is only called for declarations and we need it for symbol table gen 
+    $$->lineno = yyget_lineno();
+	  $$->str = $1;  // this is only called for declarations and we need it for symbol table gen 
     $$->addChild(new SymbolNode($1));
     $$->addChild($3);
   }
@@ -207,6 +215,7 @@ Block:
   }
   | '{' '}' {
     $$ = new BlockNode();
+    $$->lineno = yyget_lineno();
   }
 ;
 
@@ -216,6 +225,7 @@ Expression:
   // this rule is right recursive because it is right associative.
   TermPrecedence9 assignmentOperator Expression {
     $$ = new AssignmentNode($2);
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
   }
@@ -227,6 +237,7 @@ Expression:
 TermPrecedence9:
   TermPrecedence9 binaryOperatorKeyword9 TermPrecedence8 {
     $$ = new ExpressionNode($2);
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
   }
@@ -238,6 +249,7 @@ TermPrecedence9:
 TermPrecedence8:
   TermPrecedence8 binaryOperatorKeyword8 TermPrecedence7 {
     $$ = new ExpressionNode($2);
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
   }
@@ -249,6 +261,7 @@ TermPrecedence8:
 TermPrecedence7:
   TermPrecedence7 binaryOperatorKeyword7 TermPrecedence6 {
     $$ = new ExpressionNode($2);
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
   }
@@ -260,6 +273,7 @@ TermPrecedence7:
 TermPrecedence6:
   TermPrecedence6 binaryOperatorKeyword6 TermPrecedence5 {
     $$ = new ExpressionNode($2);
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
   }
@@ -271,6 +285,7 @@ TermPrecedence6:
 TermPrecedence5:
   TermPrecedence5 binaryOperatorKeyword5 TermPrecedence4 {
     $$ = new ExpressionNode($2);
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
   }
@@ -282,6 +297,7 @@ TermPrecedence5:
 TermPrecedence4:
   TermPrecedence4 binaryOperatorKeyword4 TermPrecedence3 {
     $$ = new ExpressionNode($2);
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
   }
@@ -293,6 +309,7 @@ TermPrecedence4:
 TermPrecedence3:
   TermPrecedence3 binaryOperatorKeyword3 TermPrecedence2 {
     $$ = new ExpressionNode($2);
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
   }
@@ -304,6 +321,7 @@ TermPrecedence3:
 TermPrecedence2:
   TermPrecedence2 binaryOperatorKeyword2 TermPrecedence1 {
     $$ = new ExpressionNode($2);
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
   }
@@ -315,6 +333,7 @@ TermPrecedence2:
 TermPrecedence1:
   TermPrecedence1 binaryOperatorKeyword1 TermPrecedence0 {
     $$ = new ExpressionNode($2);
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
   }
@@ -326,6 +345,7 @@ TermPrecedence1:
 TermPrecedence0:
   TermPrecedence0 binaryOperatorKeyword0 TermUnary {
     $$ = new ExpressionNode($2);
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
   }
@@ -349,6 +369,7 @@ TermUnary:
 TermPreUnary:
   unaryPreOperator PrimaryTerm {
     $$ = new ExpressionNode($1);
+    $$->lineno = yyget_lineno();
     $$->addChild($2);
   }
 ;
@@ -356,6 +377,7 @@ TermPreUnary:
 TermPostUnary:
   PrimaryTerm unaryPostOperatorKeyword {
     $$ = new ExpressionNode($2);
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
   }
 ;
@@ -400,6 +422,7 @@ assignmentOperator:
 Value:
   identifier {
     $$ = new SymbolNode($1);
+    $$->lineno = yyget_lineno();
   }
 | Literal {
     $$ = $1;
@@ -410,20 +433,24 @@ Literal:
 // TODO: const char* and char literals. (Eventually)
   integer {
     $$ = new LiteralNode(std::to_string($1));
+    $$->lineno = yyget_lineno();
   }
 | real {
     $$ = new LiteralNode(std::to_string($1));
+    $$->lineno = yyget_lineno();
   }
 ;
 
 IfStatement:
   ifKeyword '(' Expression ')' Block {
     $$ = new IfNode();
+    $$->lineno = yyget_lineno();
     $$->addChild($3);
     $$->addChild($5);
   }
 | ifKeyword '(' Expression ')' Block ElseStatement  {
     $$ = new IfNode();
+    $$->lineno = yyget_lineno();
     $$->addChild($3);
     $$->addChild($5);
     $$->addChild($6);
@@ -442,6 +469,7 @@ ElseStatement:
 WhileStatement:
   whileKeyword '(' Expression ')' Block {
     $$ = new WhileNode();
+    $$->lineno = yyget_lineno();
     $$->addChild($3);
     $$->addChild($5);
   }
@@ -450,6 +478,7 @@ WhileStatement:
 DoWhileStatement:
   doKeyword Block whileKeyword '(' Expression ')' ';' {
     $$ = new DoWhileNode();
+    $$->lineno = yyget_lineno();
     $$->addChild($2);
     $$->addChild($5);
   }
@@ -458,10 +487,11 @@ DoWhileStatement:
 ForStatement:
   forKeyword '(' ForAssignment ';' ForExpression ';' ForExpression ')' Block {
     $$ = new ForNode();
+    $$->lineno = yyget_lineno();
     $$->addChild($3);
     $$->addChild($5);
-	$$->addChild($7);
-	$$->addChild($9);
+	  $$->addChild($7);
+	  $$->addChild($9);
   }
 ;
 
@@ -481,19 +511,21 @@ ForExpression:
   }
 | {
     $$ = new EmptyNode();
+    $$->lineno = yyget_lineno();
   }
 ;
 
 ReturnStatement:
   returnKeyword Expression ';' {
     $$ = new ReturnNode();
+    $$->lineno = yyget_lineno();
     $$->addChild($2);
   }
 ;
 
 %%
 
-void handleError(const char* msg);
+void handleError(const char* msg, int lineno);
 void yyerror(const char* msg) {
-	handleError(msg);
+	handleError(msg, yyget_lineno());
 }
