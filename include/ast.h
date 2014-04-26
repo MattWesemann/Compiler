@@ -66,6 +66,7 @@ public:
 		nodeCount += 1;
 		uniqueID = nodeCount;
 		type = Type::Empty;
+		regCount = 0;
 	}
 
 	// Modifies a vector to add copies of all children, grand children, etc.

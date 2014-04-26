@@ -102,6 +102,7 @@ add_executable(frontend
 	source/visitor.cpp
 	source/symbolVisitor.cpp
 	source/constVisitor.cpp
+	source/registerVisitor.cpp
 	${BIN}/flex-bison-autogen/language_0_scanner.cpp
 	${BIN}/flex-bison-autogen/language_0_parser.cpp
 
@@ -117,6 +118,7 @@ add_executable(frontend
 	include/visitor.h
 	include/symbolVisitor.h
 	include/constVisitor.h
+	include/registerVisitor.h
 
 	# Flex/Bison files.
 	flex-bison/language_0.l
