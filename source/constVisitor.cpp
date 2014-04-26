@@ -18,6 +18,11 @@ void ConstVisitor::visit(AssignmentNode* node){
 }
 
 void ConstVisitor::visit(DeclarationsNode* node){
-	// do nothing - and keep the warnings away
-	(void) node;
+	//This should check to see if it is an assignment node(as opposed to a identifier) and will check if you tryied to chain assign to a const variable.
+	for (auto child : node->children){
+		if (!(child->children.empty())){
+			Visitor::visit(child->children[1]);
+		}
+
+	}	
 }
