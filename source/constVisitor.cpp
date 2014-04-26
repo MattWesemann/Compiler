@@ -13,7 +13,7 @@ ConstVisitor::ConstVisitor() : Visitor() {
 void ConstVisitor::visit(AssignmentNode* node){
 	if (node->nodeScope->getSymbol(node->children[0]->str)->getAttributes().isConst){
 		errorFlag = true;
-		*cerrFile << "Reassigning const variable: " << node->children[0]->str << " at linge no: " << node->lineno << endl;
+		*cerrFile << "Reassigning const variable: " << node->children[0]->str << " at line no: " << node->lineno << endl;
 	}
 }
 
