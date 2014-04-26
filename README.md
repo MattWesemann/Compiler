@@ -11,6 +11,12 @@ Clone or unzip the source somewhere.
     $ mkdir Hellman
     $ cd Hellman
     $ git clone https://github.com/MattWesemann/Compiler.git
+    
+Try running:
+
+    $ ./build
+    
+to automatically cmake, make, and create the build directory (with `frontend` in it).
 
 Make a build directory (naming doesn't matter). While the code should work in or out of the source directory, it may be more convenient to keep everything packaged under another directory.
 
