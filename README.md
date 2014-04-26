@@ -14,7 +14,7 @@ Clone or unzip the source somewhere.
     
 Try running:
 
-    $ ./build
+    $ ./rebuild
     
 to automatically cmake, make, and create the build directory (with `frontend` in it).
 
