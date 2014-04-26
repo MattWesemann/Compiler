@@ -41,7 +41,7 @@ void SymbolVisitor::visit(SymbolNode* node){
 	node->nodeScope = current;
 	if (sym.get() == nullptr){
 		errorFlag = true;
-		*cerrFile << "Error symbol does not exist: " << sym->getName() << endl;
+		*cerrFile << "Error symbol does not exist: " << node->str << endl;
 	}
 }
 

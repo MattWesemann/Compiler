@@ -58,9 +58,10 @@ int main(int argc, char* argv[]) {
 	if (root != nullptr)
 		((Visitor*) &symVisit)->visit(root);
 
-	if (symVisit.hadError())
+	if (symVisit.hadError()){
 		ret = 1;
-
+		return ret;
+	}
 
 	ConstVisitor constvisit;
 	if (root != nullptr)
