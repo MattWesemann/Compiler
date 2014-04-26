@@ -370,6 +370,7 @@ TermPreUnary:
   unaryPreOperator PrimaryTerm {
     $$ = new ExpressionNode($1);
     $$->lineno = yyget_lineno();
+    $$->isPrefix = true;
     $$->addChild($2);
   }
 ;
@@ -378,6 +379,7 @@ TermPostUnary:
   PrimaryTerm unaryPostOperatorKeyword {
     $$ = new ExpressionNode($2);
     $$->lineno = yyget_lineno();
+    $$->isPrefix = false;
     $$->addChild($1);
   }
 ;
