@@ -31,7 +31,7 @@ for file in ${1}* ; do
 	cat ${file} | ./build/frontend ${file}
 	
 	if [ $? -ne 0 ] ; then
-		echo -e "Processing ${file} resulted\nin an error. Check the\n./output/${shortFile} directory's .err file.\n"
+		echo -e "Processing ${file} resulted in an error. Check the ./output/${shortFile} directory's .err file.\n"
 	fi
 	
 	mkdir -p ./output/${shortFile}
