@@ -56,6 +56,17 @@ The binary you're interested in is called `frontend`.
     211 208 209
     213 214 212
     216 217 215
+    
+Batch file testing
+------------------
+
+To batch file test, and after cloning and building:
+    
+    $ ./make-png-loop.sh {path-to-directory-containing-test-files}
+
+Ensure that the path information contains a '/' (slash) at the end.
+
+The console will tell you if the test language passed, and all generated files will be in the ./output/{test-file0}, ./output/{test-file1}, ..., etc. directories.
 
 
 What we're supposed to do
