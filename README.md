@@ -11,6 +11,12 @@ Clone or unzip the source somewhere.
     $ mkdir Hellman
     $ cd Hellman
     $ git clone https://github.com/MattWesemann/Compiler.git
+    
+Try running:
+
+    $ ./rebuild
+    
+to automatically `cmake`, `make`, and create the `./build` directory (with `frontend` in it).
 
 Make a build directory (naming doesn't matter). While the code should work in or out of the source directory, it may be more convenient to keep everything packaged under another directory.
 
@@ -64,9 +70,9 @@ To batch file test, and after cloning and building:
     
     $ ./make-png-loop.sh {path-to-directory-containing-test-files}
 
-Ensure that the path information contains a '/' (slash) at the end.
+Ensure that the path information contains a `/` (slash) at the end.
 
-The console will tell you if the test language passed, and all generated files will be in the ./output/{test-file0}, ./output/{test-file1}, ..., etc. directories.
+The console will tell you if the test language passed, and all generated files will be in the `./output/{test-file0}`, `./output/{test-file1}`, ..., etc. directories.
 
 
 What we're supposed to do
