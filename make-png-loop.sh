@@ -27,22 +27,37 @@ for file in ${1}* ; do
 	fi
 
 	shortFile=${file##*/}
+	
 	cat ${file} | ./build/frontend ${file}
+	
 	if [ $? -ne 0 ] ; then
 		echo -e "Processing ${file} resulted\nin an error. Check the\n./output/${shortFile} directory's .err file.\n"
 	fi
+	
 	mkdir -p ./output/${shortFile}
-	mv ${file}.err ./output/${shortFile}
-	mv ${file}.p ./output/${shortFile}
+	
+	if [ -f ${file}.err ] ; then
+		mv ${file}.err ./output/${shortFile}
+	fi
+	
+	if [ -f ${file}.p ] ; then 
+		mv ${file}.p ./output/${shortFile}
+	fi
+	
 	if [ -f ${file}.a ] ; then
 		mv ${file}.a ./output/${shortFile}
 	fi
+	
 	if [ -f ${file}.ir ] ; then
 		mv ${file}.ir ./output/${shortFile}
 	fi
+	
 	cd ./output/${shortFile}
+	
 	if [ -f ${file}.a ]; then
 		cat ${shortFile}.a | ../../parse-tree-to-graphvis.py | dot -T png -o parsetree.png
 	fi
+	
 	cd ../..
+	
 done
