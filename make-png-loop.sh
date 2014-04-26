@@ -20,25 +20,44 @@
 #	'root/output/language-file-name'.
 
 
-for file in ${1}*
-do
+for file in ${1}* ; do
+	
+	if [ -d ${file} ] ; then
+		continue
+	fi
+
 	shortFile=${file##*/}
+	
 	cat ${file} | ./build/frontend ${file}
+	
 	if [ $? -ne 0 ] ; then
 		echo -e "Processing ${file} resulted\nin an error. Check the\n./output/${shortFile} directory's .err file.\n"
 	fi
+	
 	mkdir -p ./output/${shortFile}
-	mv ./examples/toIrTests/${shortFile}.err ./output/${shortFile}
-	mv ./examples/toIrTests/${shortFile}.p ./output/${shortFile}
-	if [ -f ./examples/toIrTests/${shortFile}.a ] ; then
-		mv ./examples/toIrTests/${shortFile}.a ./output/${shortFile}
+	
+	if [ -f ${file}.err ] ; then
+		mv ${file}.err ./output/${shortFile}
 	fi
-	if [ -f ./examples/toIrTests/${shortFile}.ir ] ; then
-		mv ./examples/toIrTests/${shortFile}.ir ./output/${shortFile}
+	
+	if [ -f ${file}.p ] ; then 
+		mv ${file}.p ./output/${shortFile}
 	fi
+	
+	if [ -f ${file}.a ] ; then
+		mv ${file}.a ./output/${shortFile}
+	fi
+	
+	if [ -f ${file}.ir ] ; then
+		mv ${file}.ir ./output/${shortFile}
+	fi
+	
 	cd ./output/${shortFile}
-	if [ -f ./examples/toIrTests/${shortFile}.a ]; then
+	
+	if [ -f ${file}.a ]; then
 		cat ${shortFile}.a | ../../parse-tree-to-graphvis.py | dot -T png -o parsetree.png
 	fi
+	
 	cd ../..
+	
 done
