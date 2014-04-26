@@ -6,7 +6,7 @@
 #include <string>
 #include "constVisitor.h"
 #include "IRGenerator.h"
-
+#include "registerVisitor.h"
 
 using namespace std;
 
@@ -69,17 +69,22 @@ int main(int argc, char* argv[]) {
 	if (root != nullptr)
 		((Visitor*) &constvisit)->visit(root);
 
-	if (constvisit.hadError())
+	if (constvisit.hadError()){
 		ret = 1;
-
+		return ret;
+	}
+		
 	// now that AST is done print finished tree
 	out = new ofstream(outname + ".a");
 	root->print_tree(*out);
 
 	ofstream irOut(outname + ".ir");
 
+	RegisterVisitor regVisit;
+	((Visitor*) &regVisit)->visit(root);
+
 	IRGeneratorVisitor irVisit(&irOut);
-	((Visitor*) &constvisit)->visit(root);
+	((Visitor*) &irVisit)->visit(root);
 
 	return ret;
 }

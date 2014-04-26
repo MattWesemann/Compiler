@@ -2,6 +2,10 @@
 #include <cmath>
 #include "ast.h"
 
+RegisterVisitor::RegisterVisitor(){
+
+}
+
 // sethi ullman numbering
 void RegisterVisitor::visit(ExpressionNode* node) {
 	//left child
