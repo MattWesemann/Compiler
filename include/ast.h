@@ -48,7 +48,9 @@ public:
 
 	// This is used for Sethi-Ullman
 	int regCount;
-
+	
+	//this is for prefix-postfix operators
+	bool isPrefix;
 
 	// This allows the ast to know what scope it's in. 
 	std::shared_ptr<Scope> nodeScope;
