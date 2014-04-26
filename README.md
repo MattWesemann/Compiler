@@ -68,7 +68,7 @@ Batch file testing
 
 To batch file test, and after cloning and building:
     
-    $ ./make-png-loop.sh {path-to-directory-containing-test-files}
+    $ ./make-png-loop {path-to-directory-containing-test-files}
 
 Ensure that the path information contains a `/` (slash) at the end.
 
