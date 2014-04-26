@@ -20,8 +20,12 @@
 #	'root/output/language-file-name'.
 
 
-for file in ${1}*
-do
+for file in ${1}* ; do
+	
+	if [ -d ${file} ] ; then
+		continue
+	fi
+
 	shortFile=${file##*/}
 	cat ${file} | ./build/frontend ${file}
 	if [ $? -ne 0 ] ; then
