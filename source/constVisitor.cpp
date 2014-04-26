@@ -26,3 +26,12 @@ void ConstVisitor::visit(DeclarationsNode* node){
 
 	}	
 }
+
+void ConstVisitor::visit(ExpressionNode* node){
+	if (node->str == "++" or node-> str == "--"){
+		if (node->children[0]->nodeScope->getSymbol(node->children[0]->str)->getAttributes().isConst){
+			errorFlag = true;
+			*cerrFile << "Reassigning const variable: " << node->children[0]->str << " at line no: " << node->lineno << endl;
+		}
+	}
+}
