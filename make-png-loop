@@ -54,7 +54,7 @@ for file in ${1}* ; do
 	
 	cd ./output/${shortFile}
 	
-	if [ -f ${file}.a ]; then
+	if [ -f ${shortFile}.a ]; then
 		cat ${shortFile}.a | ../../parse-tree-to-graphvis.py | dot -T png -o parsetree.png
 	fi
 	
