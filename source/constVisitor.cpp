@@ -18,5 +18,6 @@ void ConstVisitor::visit(AssignmentNode* node){
 }
 
 void ConstVisitor::visit(DeclarationsNode* node){
-	// do nothing
+	// do nothing - and keep the warnings away
+	(void) node;
 }
