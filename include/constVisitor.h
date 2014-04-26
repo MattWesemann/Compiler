@@ -7,6 +7,7 @@ public:
 
 	void visit(AssignmentNode* node);
 	void visit(DeclarationsNode* node);
+	void visit(ExpressionNode* node);
 
 
 };
