@@ -1,6 +1,8 @@
 #include "registerVisitor.h"
-#include <cmath>
+#include <algorithm>
 #include "ast.h"
+
+using namespace std;
 
 RegisterVisitor::RegisterVisitor(){
 
@@ -36,8 +38,7 @@ void RegisterVisitor::numberNode(ASTNode* node) {
 			node->regCount = right + 1;
 		}
 		else {
-			node->regCount = fmax(left, right );
+			node->regCount = max(left, right );
 		}
 	}
-
 }
