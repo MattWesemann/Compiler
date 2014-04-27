@@ -10,6 +10,8 @@ public:
 	IRGeneratorVisitor(std::ofstream* _irFile);
 	void visit(ExpressionNode* node);
 	void visit(AssignmentNode* node);
+	void visit(WhileNode* node);
+	void visit(IfNode* node);
 
 private:
 	void CalcTree(ASTNode* node, std::vector<std::string>& regList, int vectStart = 0);

@@ -31,6 +31,9 @@ int main(int argc, char* argv[]) {
 	string outname(argv[1]);
 
 	cerrFile = new ofstream(outname + ".err");
+	ofstream outRaw(outname + ".p");
+	ofstream outA(outname + ".a");
+	ofstream irOut(outname + ".ir");
 
 	//yydebug = 1;
 	int ret = 0;
@@ -49,11 +52,7 @@ int main(int argc, char* argv[]) {
 		return ret;
 	}
 
-
-
-	ofstream* out = new ofstream(outname + ".p");
-
-	root->print_tree(*out);
+	root->print_tree(outRaw);
 
 	SymbolVisitor symVisit;
 
@@ -75,10 +74,7 @@ int main(int argc, char* argv[]) {
 	}
 		
 	// now that AST is done print finished tree
-	out = new ofstream(outname + ".a");
-	root->print_tree(*out);
-
-	ofstream irOut(outname + ".ir");
+	root->print_tree(outA);
 
 	RegisterVisitor regVisit;
 	((Visitor*) &regVisit)->visit(root);

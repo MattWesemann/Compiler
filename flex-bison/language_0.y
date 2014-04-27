@@ -449,6 +449,7 @@ IfStatement:
     $$->lineno = yyget_lineno();
     $$->addChild($3);
     $$->addChild($5);
+    $$->addChild(new EmptyNode());
   }
 | ifKeyword '(' Expression ')' Block ElseStatement  {
     $$ = new IfNode();
@@ -456,6 +457,7 @@ IfStatement:
     $$->addChild($3);
     $$->addChild($5);
     $$->addChild($6);
+    $$->addChild(new EmptyNode());
   }
 ;
 
@@ -474,6 +476,7 @@ WhileStatement:
     $$->lineno = yyget_lineno();
     $$->addChild($3);
     $$->addChild($5);
+    $$->addChild(new EmptyNode());
   }
 ;
 
