@@ -6,7 +6,7 @@ public:
 	ConstVisitor();
 
 	void visit(AssignmentNode* node);
-	void visit(DeclarationsNode* node);
+	void visit(DeclarationNode* node);
 	void visit(ExpressionNode* node);
 
 

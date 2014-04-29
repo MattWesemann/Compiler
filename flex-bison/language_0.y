@@ -6,7 +6,7 @@
   int yylex();
   int yyget_lineno();
 
-  void yyerror(const char*);
+  void yyerror(std::shared_ptr<ASTNode>& root, const char*);
 %}
 
 // Debugging flags.
@@ -16,9 +16,8 @@
 %error-verbose
 %define parse.lac full
 
-// This adds additonal arguments to yyparse. We can use it to return
-//    the AST, but until then it just gets in the way.
-//%parse-param {ASTNode& program}.
+// This adds additonal arguments to yyparse.
+%parse-param {std::shared_ptr<ASTNode>& root}
 
 %token <integer>    integer
 %token <real>       real
@@ -87,14 +86,12 @@
   #include <memory>
   #include "ast.h"
 
-  extern ASTNode* root;
-
   // Structs, unlike unions, allow class members.
   struct YYSTYPE {
     int integer;
     double real;
     std::string str;
-    ASTNode* node;
+    std::shared_ptr<ASTNode> node;
 
     // We should probably have a reasonable default constructor.
     YYSTYPE()
@@ -106,8 +103,10 @@
 
 Program:
   Statements {
-    root = $$ = $1;
-    $$->type = ASTNode::Program;
+    root = $$ = std::make_shared<ProgramNode>();
+    root->lineno = $1->lineno;
+	// slightly hackish but lets steal their children
+    root->children = std::move($1->children);
   }
 ;
 
@@ -116,7 +115,7 @@ Statements:
     $$->addChild($2);
   }
 | Statement {
-    $$ = new BlockNode();
+    $$ = std::make_shared<BlockNode>();
     $$->lineno = yyget_lineno();
     $$->addChild($1);
   }
@@ -148,29 +147,26 @@ Statement:
     $$ = $1;
   }
 | ';' {
-    $$ = new ExpressionNode();
+    $$ = std::make_shared<ExpressionNode>();
     $$->lineno = yyget_lineno();
   }
 ;
 
 Declarations:
   Type DeclList {
-    $$ = new DeclarationsNode();
+    $$ = std::make_shared<DeclarationNode>();
     $$->lineno = yyget_lineno();
-	  $$->addChild($1);
-	  for(auto& child: $2->children){
-		  $$->addChild(child);
-	  }
+    $$->addChild($1);
+    for(auto& child: $2->children){
+      $$->addChild(child);
+    }
   }
 ;
 
 DeclList:
   Declaration {
-    if($$->type != ASTNode::Declaration){
-	    $$ = new DeclarationNode();
-      $$->lineno = yyget_lineno();
-	  } 
-
+    $$ = std::make_shared<DeclarationNode>();
+    $$->lineno = yyget_lineno();
     $$->addChild($1);
   }
 | DeclList ',' Declaration {
@@ -183,7 +179,7 @@ Declaration:
     $$ = $1;
   }
 | identifier {
-    $$ = new SymbolNode($1);
+    $$ = std::make_shared<SymbolNode>($1);
     $$->lineno = yyget_lineno();
   }
 ;
@@ -194,17 +190,17 @@ Type:
     $$->makeConst();
   }
 | identifier {
-    $$ = new TypeNode($1);
+    $$ = std::make_shared<TypeNode>($1);
     $$->lineno = yyget_lineno();
   }
 ;
 
 Assignment:
   identifier '=' Expression {
-    $$ = new AssignmentNode();
+    $$ = std::make_shared<AssignmentNode>();
     $$->lineno = yyget_lineno();
-	  $$->str = $1;  // this is only called for declarations and we need it for symbol table gen 
-    $$->addChild(new SymbolNode($1));
+    //$$->str = $1;  // this is only called for declarations and we need it for symbol table gen 
+    $$->addChild(std::make_shared<SymbolNode>($1));
     $$->addChild($3);
   }
 ;
@@ -214,7 +210,7 @@ Block:
     $$ = $2;
   }
   | '{' '}' {
-    $$ = new BlockNode();
+    $$ = std::make_shared<BlockNode>();
     $$->lineno = yyget_lineno();
   }
 ;
@@ -224,7 +220,7 @@ Expression:
 
   // this rule is right recursive because it is right associative.
   TermPrecedence9 assignmentOperator Expression {
-    $$ = new AssignmentNode($2);
+    $$ = std::make_shared<AssignmentNode>($2);
     $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
@@ -236,7 +232,7 @@ Expression:
 
 TermPrecedence9:
   TermPrecedence9 binaryOperatorKeyword9 TermPrecedence8 {
-    $$ = new ExpressionNode($2);
+    $$ = std::make_shared<ExpressionNode>($2);
     $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
@@ -248,7 +244,7 @@ TermPrecedence9:
 
 TermPrecedence8:
   TermPrecedence8 binaryOperatorKeyword8 TermPrecedence7 {
-    $$ = new ExpressionNode($2);
+    $$ = std::make_shared<ExpressionNode>($2);
     $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
@@ -260,7 +256,7 @@ TermPrecedence8:
 
 TermPrecedence7:
   TermPrecedence7 binaryOperatorKeyword7 TermPrecedence6 {
-    $$ = new ExpressionNode($2);
+    $$ = std::make_shared<ExpressionNode>($2);
     $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
@@ -272,7 +268,7 @@ TermPrecedence7:
 
 TermPrecedence6:
   TermPrecedence6 binaryOperatorKeyword6 TermPrecedence5 {
-    $$ = new ExpressionNode($2);
+    $$ = std::make_shared<ExpressionNode>($2);
     $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
@@ -284,7 +280,7 @@ TermPrecedence6:
 
 TermPrecedence5:
   TermPrecedence5 binaryOperatorKeyword5 TermPrecedence4 {
-    $$ = new ExpressionNode($2);
+    $$ = std::make_shared<ExpressionNode>($2);
     $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
@@ -296,7 +292,7 @@ TermPrecedence5:
 
 TermPrecedence4:
   TermPrecedence4 binaryOperatorKeyword4 TermPrecedence3 {
-    $$ = new ExpressionNode($2);
+    $$ = std::make_shared<ExpressionNode>($2);
     $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
@@ -308,7 +304,7 @@ TermPrecedence4:
 
 TermPrecedence3:
   TermPrecedence3 binaryOperatorKeyword3 TermPrecedence2 {
-    $$ = new ExpressionNode($2);
+    $$ = std::make_shared<ExpressionNode>($2);
     $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
@@ -320,7 +316,7 @@ TermPrecedence3:
 
 TermPrecedence2:
   TermPrecedence2 binaryOperatorKeyword2 TermPrecedence1 {
-    $$ = new ExpressionNode($2);
+    $$ = std::make_shared<ExpressionNode>($2);
     $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
@@ -332,7 +328,7 @@ TermPrecedence2:
 
 TermPrecedence1:
   TermPrecedence1 binaryOperatorKeyword1 TermPrecedence0 {
-    $$ = new ExpressionNode($2);
+    $$ = std::make_shared<ExpressionNode>($2);
     $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
@@ -344,7 +340,7 @@ TermPrecedence1:
 
 TermPrecedence0:
   TermPrecedence0 binaryOperatorKeyword0 TermUnary {
-    $$ = new ExpressionNode($2);
+    $$ = std::make_shared<ExpressionNode>($2);
     $$->lineno = yyget_lineno();
     $$->addChild($1);
     $$->addChild($3);
@@ -368,7 +364,7 @@ TermUnary:
 
 TermPreUnary:
   unaryPreOperator PrimaryTerm {
-    $$ = new ExpressionNode($1);
+    $$ = std::make_shared<ExpressionNode>($1);
     $$->lineno = yyget_lineno();
     $$->isPrefix = true;
     $$->addChild($2);
@@ -377,7 +373,7 @@ TermPreUnary:
 
 TermPostUnary:
   PrimaryTerm unaryPostOperatorKeyword {
-    $$ = new ExpressionNode($2);
+    $$ = std::make_shared<ExpressionNode>($2);
     $$->lineno = yyget_lineno();
     $$->isPrefix = false;
     $$->addChild($1);
@@ -423,7 +419,7 @@ assignmentOperator:
 
 Value:
   identifier {
-    $$ = new SymbolNode($1);
+    $$ = std::make_shared<SymbolNode>($1);
     $$->lineno = yyget_lineno();
   }
 | Literal {
@@ -434,30 +430,30 @@ Value:
 Literal:
 // TODO: const char* and char literals. (Eventually)
   integer {
-    $$ = new LiteralNode(std::to_string($1));
+    $$ = std::make_shared<LiteralNode>(std::to_string($1));
     $$->lineno = yyget_lineno();
   }
 | real {
-    $$ = new LiteralNode(std::to_string($1));
+    $$ = std::make_shared<LiteralNode>(std::to_string($1));
     $$->lineno = yyget_lineno();
   }
 ;
 
 IfStatement:
   ifKeyword '(' Expression ')' Block {
-    $$ = new IfNode();
+    $$ = std::make_shared<IfNode>();
     $$->lineno = yyget_lineno();
     $$->addChild($3);
     $$->addChild($5);
-    $$->addChild(new EmptyNode());
+    $$->addChild(std::make_shared<EmptyNode>());
   }
 | ifKeyword '(' Expression ')' Block ElseStatement  {
-    $$ = new IfNode();
+    $$ = std::make_shared<IfNode>();
     $$->lineno = yyget_lineno();
     $$->addChild($3);
     $$->addChild($5);
     $$->addChild($6);
-    $$->addChild(new EmptyNode());
+    $$->addChild(std::make_shared<EmptyNode>());
   }
 ;
 
@@ -472,17 +468,17 @@ ElseStatement:
 
 WhileStatement:
   whileKeyword '(' Expression ')' Block {
-    $$ = new WhileNode();
+    $$ = std::make_shared<WhileNode>();
     $$->lineno = yyget_lineno();
     $$->addChild($3);
     $$->addChild($5);
-    $$->addChild(new EmptyNode());
+    $$->addChild(std::make_shared<EmptyNode>());
   }
 ;
 
 DoWhileStatement:
   doKeyword Block whileKeyword '(' Expression ')' ';' {
-    $$ = new DoWhileNode();
+    $$ = std::make_shared<DoWhileNode>();
     $$->lineno = yyget_lineno();
     $$->addChild($2);
     $$->addChild($5);
@@ -491,12 +487,12 @@ DoWhileStatement:
 
 ForStatement:
   forKeyword '(' ForAssignment ';' ForExpression ';' ForExpression ')' Block {
-    $$ = new ForNode();
+    $$ = std::make_shared<ForNode>();
     $$->lineno = yyget_lineno();
     $$->addChild($3);
     $$->addChild($5);
-	  $$->addChild($7);
-	  $$->addChild($9);
+    $$->addChild($7);
+    $$->addChild($9);
   }
 ;
 
@@ -515,14 +511,14 @@ ForExpression:
     $$ = $1;
   }
 | {
-    $$ = new EmptyNode();
+    $$ = std::make_shared<EmptyNode>();
     $$->lineno = yyget_lineno();
   }
 ;
 
 ReturnStatement:
   returnKeyword Expression ';' {
-    $$ = new ReturnNode();
+    $$ = std::make_shared<ReturnNode>();
     $$->lineno = yyget_lineno();
     $$->addChild($2);
   }
@@ -531,6 +527,7 @@ ReturnStatement:
 %%
 
 void handleError(const char* msg, int lineno);
-void yyerror(const char* msg) {
-	handleError(msg, yyget_lineno());
+void yyerror(std::shared_ptr<ASTNode>& root, const char* msg) {
+	(void) root;
+    handleError(msg, yyget_lineno());
 }

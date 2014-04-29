@@ -18,6 +18,10 @@ void RegisterVisitor::visit(ExpressionNode* node) {
 	}
 }
 
+void RegisterVisitor::numberNode(shared_ptr<ASTNode> node){
+	numberNode(node.get());
+}
+
 void RegisterVisitor::numberNode(ASTNode* node) {
 	//number leaf nodes with 1
 	if(node->children.size() == 0) {

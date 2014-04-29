@@ -10,12 +10,7 @@
 
 using namespace std;
 
-ASTNode* root = nullptr;
-ofstream* cerrFile;
-
-
-// Not declared in the header.
-int yyparse();
+shared_ptr<ofstream> cerrFile;
 
 void handleError(const char* msg, int lineno){
 	*cerrFile << "[Error] " << msg << " on line " << lineno << endl;
@@ -30,14 +25,16 @@ int main(int argc, char* argv[]) {
 
 	string outname(argv[1]);
 
-	cerrFile = new ofstream(outname + ".err");
+	cerrFile = make_shared<ofstream>(outname + ".err");
 	ofstream outRaw(outname + ".p");
 	ofstream outA(outname + ".a");
 	ofstream irOut(outname + ".ir");
 
+	shared_ptr<ASTNode> root;
+
 	//yydebug = 1;
 	int ret = 0;
-	switch (ret = yyparse()) {
+	switch (ret = yyparse(root)) {
 	case 0:
 		// Silence is golden.
 		break;
@@ -57,18 +54,18 @@ int main(int argc, char* argv[]) {
 	SymbolVisitor symVisit;
 
 	if (root != nullptr)
-		((Visitor*) &symVisit)->visit(root);
+		((Visitor*) &symVisit)->visit(root.get());
 
-	if (symVisit.hadError()){
+	if (symVisit.hadError(cerrFile.get())){
 		ret = 1;
 		return ret;
 	}
 
 	ConstVisitor constvisit;
 	if (root != nullptr)
-		((Visitor*) &constvisit)->visit(root);
+		((Visitor*) &constvisit)->visit(root.get());
 
-	if (constvisit.hadError()){
+	if (constvisit.hadError(cerrFile.get())){
 		ret = 1;
 		return ret;
 	}
@@ -77,10 +74,10 @@ int main(int argc, char* argv[]) {
 	root->print_tree(outA);
 
 	RegisterVisitor regVisit;
-	((Visitor*) &regVisit)->visit(root);
+	((Visitor*) &regVisit)->visit(root.get());
 
 	IRGeneratorVisitor irVisit(&irOut);
-	((Visitor*) &irVisit)->visit(root);
+	((Visitor*) &irVisit)->visit(root.get());
 
 	return ret;
 }

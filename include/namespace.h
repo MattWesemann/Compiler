@@ -5,7 +5,6 @@
 
 class Namespace {
 public:
-	Namespace();
 	Name add(std::string name);
 	std::string get(size_t offset, size_t len);
 
@@ -13,6 +12,7 @@ public:
 	void clear();
 
 private:
+	Namespace();
 	static Namespace* singleton;
 	std::vector<char> bytes;
 };

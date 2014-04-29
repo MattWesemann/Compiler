@@ -9,12 +9,11 @@ public:
 	void visit(EmptyNode* node);
 	void visit(AssignmentNode* node);
 	void visit(BlockNode* node);
-	void visit(DeclarationsNode* node);
+	void visit(DeclarationNode* node);
 	void visit(IfNode* node);
 	void visit(ElseNode* node);
 	void visit(ExpressionNode* node);
 	void visit(LiteralNode* node);
-	void visit(OperatorNode* node);
 	void visit(ProgramNode* node);
 	void visit(ReturnNode* node);
 	void visit(SymbolNode* node);
@@ -24,6 +23,8 @@ public:
 	void visit(DoWhileNode* node);
 
 private:
+	std::string getSymName(ASTNode* node);
+
 	std::shared_ptr<Scope> global;
 	std::shared_ptr<Scope> current;
 	int memOffset;

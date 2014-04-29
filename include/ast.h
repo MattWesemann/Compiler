@@ -5,43 +5,45 @@
 #include <string>
 #include <vector>
 #include "scope.h"
-#include "visitor.h"
 #include <memory>
+
+// if you want to run a macro on all nodes this is how it is done
+// simply define a macro expecting a name as a parameter
+// if you want to add a new node type you only have to add it here
+#define PERFORM_NODES(NODE_MACRO)    \
+	NODE_MACRO(Empty)       		 \
+	NODE_MACRO(Assignment)  		 \
+	NODE_MACRO(Block)       		 \
+	NODE_MACRO(Declaration) 		 \
+	NODE_MACRO(Else)        		 \
+	NODE_MACRO(Expression)			 \
+	NODE_MACRO(If)					 \
+	NODE_MACRO(Literal)				 \
+	NODE_MACRO(Program)				 \
+	NODE_MACRO(Return)				 \
+	NODE_MACRO(Symbol)				 \
+	NODE_MACRO(Type)				 \
+	NODE_MACRO(While)				 \
+	NODE_MACRO(For)					 \
+	NODE_MACRO(DoWhile)				 \
+
+class Visitor;
 
 class ASTNode {
 
 public:
-	// When adding to this, remember to adjust std::to_string in ast.cpp!
+
+#define ENUMDEFINE(name) name,
 	enum NodeType {
-		Empty,
-		Assignment,
-		Block,
-		Declaration,
-		Declarations,
-		Else,
-		Expression,
-		If,
-		Literal,
-		Operator,
-		Program,
-		Return,
-		Symbol,
-		Type,
-		While,
-		For,
-		DoWhile
+		PERFORM_NODES(ENUMDEFINE)
 	};
 
-	// This guarentees a unique number for every node created,
-	//   but causes problems with copy constructors. There are
-	//   over 200 nodes created before any of the final ones
-	//   which we see in the tree are created!
-	// TODO: Work around copy construtors creating false nodes.
+	// This guarantees a unique number for every node created,
 	static int nodeCount;
 
-	void addChild(ASTNode* node);
+	void addChild(std::shared_ptr<ASTNode> node);
+	void addChildFront(std::shared_ptr<ASTNode> node);
 
-	NodeType type;
 	size_t uniqueID;
 
 	// This is only used by Symbol.
@@ -62,13 +64,12 @@ public:
 	std::string str;
 
 	// TODO: Children should know about their parent.
-	std::vector<ASTNode*> children;
+	std::vector<std::shared_ptr<ASTNode> > children;
 
 	ASTNode(std::string str = "")
 		: isConst(false), str(str) {
 		nodeCount += 1;
 		uniqueID = nodeCount;
-		type = NodeType::Empty;
 		regCount = 0;
 	}
 
@@ -95,33 +96,13 @@ bool operator==(const ASTNode& a, const ASTNode& b);
 	class name ## Node : public ASTNode {                   \
 		public:                                             \
 		name ## Node(std::string str = "") : ASTNode(str){} \
-		void accept(Visitor* visitor) {                     \
-			visitor->visit(this);                           \
-		}                                                   \
+		void accept(Visitor* visitor);                      \
 		std::string to_string() const { 					\
-			if(type == NodeType::Program)                   \
-				return "Program";                           \
 			return #name;								    \
 		}													\
 		ASTNode::NodeType to_type() {                       \
 			return ASTNode::NodeType::name;                 \
 		}                                                   \
-	}
+	};
 
-NODEDEFINE(Empty);
-NODEDEFINE(Assignment);
-NODEDEFINE(Block);
-NODEDEFINE(Declaration);
-NODEDEFINE(Declarations);
-NODEDEFINE(Else);
-NODEDEFINE(Expression);
-NODEDEFINE(If);
-NODEDEFINE(Literal);
-NODEDEFINE(Operator);
-NODEDEFINE(Program);
-NODEDEFINE(Return);
-NODEDEFINE(Symbol);
-NODEDEFINE(Type);
-NODEDEFINE(While);
-NODEDEFINE(For);
-NODEDEFINE(DoWhile); 
+PERFORM_NODES(NODEDEFINE)

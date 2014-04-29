@@ -1,16 +1,20 @@
 #include "ast.h"
+#include "visitor.h"
 
 #include <functional>
 #include <sstream>
 #include <unordered_map>
 
-
 using namespace std;
 
 int ASTNode::nodeCount = 0;
 
-void ASTNode::addChild(ASTNode* node) {
+void ASTNode::addChild(std::shared_ptr<ASTNode> node) {
 	children.push_back(node);
+}
+
+void ASTNode::addChildFront(shared_ptr<ASTNode> node){
+	children.insert(children.begin(), node);
 }
 
 void ASTNode::find_all_children(vector<ASTNode*>& nodes) const {
@@ -46,27 +50,21 @@ void ASTNode::print_tree(ostream& os) {
 
 }
 
-
-
 void ASTNode::makeConst() {
 	isConst = true;
 }
 
 string to_string(const ASTNode* node) {
 	string str;
-	// TODO: Stop copying over 200 nodes before any of the final ones,
-	//   which appear in the graph, are created.
-	// str += "#" + to_string(node.uniqueID) + " ";
-	if (node->to_string() != "Literal" || node->to_string() != "Symbol") {
-	//if (node->type != ASTNode::Symbol) {
-		str += node->to_string();
-	}
-	if (node->str.length() >= 1) {
+	if (node->str.length()) {
 		if (node->isConst) {
 			str += " const";
 		}
 		str += " '" + node->str + "'";
+	} else {
+		str += node->to_string();
 	}
+
 	if (str.length() == 0) {
 		static int errorCount = 1;
 		str = "Error #" + to_string(errorCount);
@@ -78,3 +76,10 @@ string to_string(const ASTNode* node) {
 bool operator==(const ASTNode& a, const ASTNode& b) {
 	return a.uniqueID == b.uniqueID;
 }
+
+#define NODEIMPL(name)                                  \
+	void name ## Node ::accept(Visitor* visitor) {      \
+		visitor->visit(this);                           \
+	}                                                   \
+
+PERFORM_NODES(NODEIMPL)

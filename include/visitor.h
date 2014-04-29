@@ -1,54 +1,23 @@
 #pragma once
-
-class ASTNode;
-
-// circular references are fun
-#define classdef(name) class name ## Node;
-classdef(Empty);
-classdef(Assignment);
-classdef(Block);
-classdef(Declaration);
-classdef(Declarations);
-classdef(Else);
-classdef(Expression);
-classdef(If);
-classdef(Literal);
-classdef(Operator);
-classdef(Program);
-classdef(Return);
-classdef(Symbol);
-classdef(Type);
-classdef(While);
-classdef(For);
-classdef(DoWhile);
+#include <vector>
+#include <string>
+#include <iostream>
+#include <memory>
+#include "ast.h"
 
 class Visitor {
 public:
 	Visitor();
 
+	void visit(std::shared_ptr<ASTNode> node);
 	virtual void visit(ASTNode* node);
-	virtual bool hadError();
 
-#define visitFn(name) virtual void visit(name ## Node *node)
+	// detect errors and optionally print them out
+	virtual bool hadError(std::ostream* cerrFile);
 
-	visitFn(Empty);
-	visitFn(Assignment);
-	visitFn(Block);
-	visitFn(Declaration);
-	visitFn(Declarations);
-	visitFn(Else);
-	visitFn(Expression);
-	visitFn(If);
-	visitFn(Literal);
-	visitFn(Operator);
-	visitFn(Program);
-	visitFn(Return);
-	visitFn(Symbol);
-	visitFn(Type);
-	visitFn(While);
-	visitFn(For);
-	visitFn(DoWhile);
+#define visitFn(name) virtual void visit(name ## Node *node);
+	PERFORM_NODES(visitFn)
 
 protected:
-	bool errorFlag;
+	std::vector<std::string> errors;
 };

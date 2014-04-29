@@ -12,7 +12,7 @@ void IRGeneratorVisitor::visit(IfNode* node){
 
 	bool hasElse = node->children[2]->to_type() != ASTNode::NodeType::Empty;
 
-	ASTNode* jumpTarget = node->children[2];
+	auto jumpTarget = node->children[2];
 
 	*irFile << "bfalse " << jumpTarget->uniqueID << ", R0" << endl;
 
@@ -29,7 +29,7 @@ void IRGeneratorVisitor::visit(IfNode* node){
 
 void IRGeneratorVisitor::visit(WhileNode* node){
 	Visitor::visit(node->children[0]);
-	ASTNode* jumpTarget = node->children[2];
+	auto jumpTarget = node->children[2];
 	*irFile << "bfalse " << jumpTarget->uniqueID << ", R0" << endl;
 
 	// visit block
@@ -48,6 +48,10 @@ void IRGeneratorVisitor::visit(AssignmentNode* node){
 	CalcTree(node->children[1], regList);
 	auto attr = node->children[0]->nodeScope->getSymbol(node->children[0]->str)->getAttributes();
 	*irFile << "memst " << "R0" << ", " << attr.memLoc << " ; " << node->children[0]->str << endl;
+}
+
+void IRGeneratorVisitor::CalcTree(std::shared_ptr<ASTNode> node, vector<string>& regList, int vectStart){
+	CalcTree(node.get(), regList, vectStart);
 }
 
 void IRGeneratorVisitor::CalcTree(ASTNode* node, vector<string>& regList, int vectStart) {

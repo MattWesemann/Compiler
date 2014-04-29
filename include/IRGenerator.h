@@ -15,5 +15,6 @@ public:
 
 private:
 	void CalcTree(ASTNode* node, std::vector<std::string>& regList, int vectStart = 0);
+	void CalcTree(std::shared_ptr<ASTNode> node, std::vector<std::string>& regList, int vectStart = 0);
 	std::ofstream* irFile;
 };

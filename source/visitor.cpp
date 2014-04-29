@@ -1,37 +1,30 @@
 #include "visitor.h"
 #include "ast.h"
 
+using namespace std;
+
 Visitor::Visitor(){
-	errorFlag = false;
 }
 
-#define visitFnImpl(name) void Visitor::visit(name ## Node *node){          \
-							for (auto child : node->children)      \
-								Visitor::visit(child);             \
-						  }
+void Visitor::visit(shared_ptr<ASTNode> node){
+	visit(node.get());
+}
 
 void Visitor::visit(ASTNode* node){
 	node->accept(this);
 }
 
-visitFnImpl(Empty)
-visitFnImpl(Assignment)
-visitFnImpl(Block)
-visitFnImpl(Declaration)
-visitFnImpl(Declarations)
-visitFnImpl(If)
-visitFnImpl(Else)
-visitFnImpl(Expression)
-visitFnImpl(Literal)
-visitFnImpl(Operator)
-visitFnImpl(Program)
-visitFnImpl(Return)
-visitFnImpl(Symbol)
-visitFnImpl(Type)
-visitFnImpl(While)
-visitFnImpl(For)
-visitFnImpl(DoWhile)
+#define visitFnImpl(name) void Visitor::visit(name ## Node *node){          \
+	for (auto child : node->children)                                       \
+		Visitor::visit(child);                                              \
+	}
 
-bool Visitor::hadError(){
-	return errorFlag;
+PERFORM_NODES(visitFnImpl)
+
+bool Visitor::hadError(ostream* cerrFile){
+	if (cerrFile)
+		for (auto error : errors)
+			*cerrFile << error << endl;
+	
+	return errors.size() != 0;
 }
