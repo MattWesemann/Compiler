@@ -14,10 +14,10 @@ void Visitor::visit(ASTNode* node){
 	node->accept(this);
 }
 
-#define visitFnImpl(name) void Visitor::visit(name ## Node *node){          \
-	for (auto child : node->children)                                       \
-		Visitor::visit(child);                                              \
-	}
+#define visitFnImpl(name) void Visitor::visit(name ## Node *node){  \
+    for (auto child : node->children)                               \
+        Visitor::visit(child);                                      \
+    }
 
 PERFORM_NODES(visitFnImpl)
 

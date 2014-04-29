@@ -199,7 +199,6 @@ Assignment:
   identifier '=' Expression {
     $$ = std::make_shared<AssignmentNode>();
     $$->lineno = yyget_lineno();
-    //$$->str = $1;  // this is only called for declarations and we need it for symbol table gen 
     $$->addChild(std::make_shared<SymbolNode>($1));
     $$->addChild($3);
   }

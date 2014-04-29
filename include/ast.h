@@ -11,21 +11,21 @@
 // simply define a macro expecting a name as a parameter
 // if you want to add a new node type you only have to add it here
 #define PERFORM_NODES(NODE_MACRO)    \
-	NODE_MACRO(Empty)       		 \
-	NODE_MACRO(Assignment)  		 \
-	NODE_MACRO(Block)       		 \
-	NODE_MACRO(Declaration) 		 \
-	NODE_MACRO(Else)        		 \
-	NODE_MACRO(Expression)			 \
-	NODE_MACRO(If)					 \
-	NODE_MACRO(Literal)				 \
-	NODE_MACRO(Program)				 \
-	NODE_MACRO(Return)				 \
-	NODE_MACRO(Symbol)				 \
-	NODE_MACRO(Type)				 \
-	NODE_MACRO(While)				 \
-	NODE_MACRO(For)					 \
-	NODE_MACRO(DoWhile)				 \
+    NODE_MACRO(Empty)       		 \
+    NODE_MACRO(Assignment)  		 \
+    NODE_MACRO(Block)       		 \
+    NODE_MACRO(Declaration) 		 \
+    NODE_MACRO(Else)        		 \
+    NODE_MACRO(Expression)			 \
+    NODE_MACRO(If)					 \
+    NODE_MACRO(Literal)				 \
+    NODE_MACRO(Program)				 \
+    NODE_MACRO(Return)				 \
+    NODE_MACRO(Symbol)				 \
+    NODE_MACRO(Type)				 \
+    NODE_MACRO(While)				 \
+    NODE_MACRO(For)					 \
+    NODE_MACRO(DoWhile)				 \
 
 class Visitor;
 
