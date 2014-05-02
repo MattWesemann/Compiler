@@ -1,10 +1,11 @@
 #include "IRGenerator.h"
+#include "irInstruction.h"
 #include "scope.h"
 #include <iostream>
 
 using namespace std;
 
-IRGeneratorVisitor::IRGeneratorVisitor(ofstream* _irFile) : irFile(_irFile){
+IRGeneratorVisitor::IRGeneratorVisitor() {
 }
 
 void IRGeneratorVisitor::visit(IfNode* node){
@@ -14,13 +15,14 @@ void IRGeneratorVisitor::visit(IfNode* node){
 
 	auto jumpTarget = node->children[2];
 
-	*irFile << "bfalse " << jumpTarget->uniqueID << ", R0" << endl;
+	node->children[0]->addInstruction(make_shared<BFalseInstr>(to_string(jumpTarget->uniqueID), ", R0"));
 
 	// visit block
 	Visitor::visit(node->children[1]);
 
-	if(hasElse)
-		*irFile << "jump " << node->children[3]->uniqueID << endl;
+	if (hasElse){
+		node->children[1]->addInstruction(make_shared<JumpInstr>(to_string(node->children[3]->uniqueID)));
+	}
 
 	// visit else
 	if(hasElse)
@@ -30,12 +32,12 @@ void IRGeneratorVisitor::visit(IfNode* node){
 void IRGeneratorVisitor::visit(WhileNode* node){
 	Visitor::visit(node->children[0]);
 	auto jumpTarget = node->children[2];
-	*irFile << "bfalse " << jumpTarget->uniqueID << ", R0" << endl;
+	node->children[0]->addInstruction(make_shared<BFalseInstr>(to_string(jumpTarget->uniqueID), "R0"));
 
 	// visit block
 	Visitor::visit(node->children[1]);
 
-	*irFile << "jump " << node->uniqueID << endl;
+	node->children[1]->addInstruction(make_shared<JumpInstr>(to_string(node->uniqueID)));
 }
 
 void IRGeneratorVisitor::visit(ExpressionNode* node){
@@ -47,7 +49,14 @@ void IRGeneratorVisitor::visit(AssignmentNode* node){
 	vector<string> regList;
 	CalcTree(node->children[1], regList);
 	auto attr = node->children[0]->nodeScope->getSymbol(node->children[0]->str)->getAttributes();
-	*irFile << "memst " << "R0" << ", " << attr.memLoc << " ; " << node->children[0]->str << endl;
+
+	node->addInstruction(make_shared<MemstInstr>("R0", to_string(attr.memLoc), node->children[0]->str));
+}
+
+void IRGeneratorVisitor::visit(ReturnNode* node){
+	vector<string> regList;
+	CalcTree(node->children[0], regList);
+	node->addInstruction(make_shared<ReturnInstr>());
 }
 
 void IRGeneratorVisitor::CalcTree(std::shared_ptr<ASTNode> node, vector<string>& regList, int vectStart){
@@ -66,27 +75,33 @@ void IRGeneratorVisitor::CalcTree(ASTNode* node, vector<string>& regList, int ve
 
 	if (node->to_type() == ASTNode::NodeType::Symbol) {
 		auto attr = node->nodeScope->getSymbol(node->str)->getAttributes();
-		*irFile << "memld " << regList[vectStart] << ", " << attr.memLoc << " ; " << node->str << endl;
+
+		node->addInstruction(make_shared<MemldInstr>(regList[vectStart], to_string(attr.memLoc), node->str));
 	} else if(node->to_type() == ASTNode::NodeType::Literal) {
-		*irFile << "immld " << regList[vectStart] << ", " << node->str << endl;
+
+		node->addInstruction(make_shared<ImmldInstr>(regList[vectStart], node->str));
 	} else {
 		// check for unary
 		if(node->children.size() == 1){
 			CalcTree(node->children[0], regList, vectStart);
-			*irFile << "calc " << regList[vectStart] << ", " << node->uniqueID << " ; " << node->str << endl;
+
+			node->addInstruction(make_shared<CalcInstr>(regList[vectStart], to_string(node->uniqueID), node->str));
 		} else if(node->children[0]->regCount >= node->children[1]->regCount){
 			CalcTree(node->children[0], regList, vectStart);
 			CalcTree(node->children[1], regList, vectStart + 1);
-			*irFile << "calc " << regList[vectStart] << ", " << node->uniqueID << " ; " << node->str << endl;
+
+			node->addInstruction(make_shared<CalcInstr>(regList[vectStart], to_string(node->uniqueID), node->str));
 		} else {
 			CalcTree(node->children[1], regList, vectStart);
 			CalcTree(node->children[0], regList, vectStart + 1);
-			*irFile << "calc " << regList[vectStart] << ", " << node->uniqueID << " ; " << node->str << endl;
+
+			node->addInstruction(make_shared<CalcInstr>(regList[vectStart], to_string(node->uniqueID), node->str));
 		}
 
-		if(node->to_type() == ASTNode::NodeType::Assignment){
+		if (node->to_type() == ASTNode::NodeType::Assignment){
 			auto attr = node->children[0]->nodeScope->getSymbol(node->children[0]->str)->getAttributes();
-			*irFile << "memst " << regList[vectStart] << ", " << attr.memLoc << " ; " << node->children[0]->str << endl;
+
+			node->addInstruction(make_shared<MemstInstr>(regList[vectStart], to_string(attr.memLoc), node->children[0]->str));
 		}
 	}
 }

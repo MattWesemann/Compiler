@@ -13,8 +13,13 @@ void ASTNode::addChild(std::shared_ptr<ASTNode> node) {
 	children.push_back(node);
 }
 
-void ASTNode::addChildFront(shared_ptr<ASTNode> node){
-	children.insert(children.begin(), node);
+void ASTNode::addInstruction(shared_ptr<Instruction> instr){
+	instructions.push_back(instr);
+}
+
+void ASTNode::printInstructions(ostream& out){
+	for (auto instruction : instructions)
+		instruction->print(out);
 }
 
 void ASTNode::find_all_children(vector<ASTNode*>& nodes) const {

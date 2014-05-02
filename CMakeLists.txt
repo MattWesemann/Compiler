@@ -104,6 +104,13 @@ add_executable(frontend
 	source/constVisitor.cpp
 	source/registerVisitor.cpp
 	source/IRGenerator.cpp
+	source/instruction.cpp
+	source/irPrinter.cpp
+	source/x86Instruction.cpp
+	source/irInstruction.cpp
+	source/jit.cpp
+	source/irTox86Visitor.cpp
+	source/x86EmitterVisitor.cpp
 	${BIN}/flex-bison-autogen/language_0_scanner.cpp
 	${BIN}/flex-bison-autogen/language_0_parser.cpp
 
@@ -121,6 +128,13 @@ add_executable(frontend
 	include/constVisitor.h
 	include/registerVisitor.h
 	include/IRGenerator.h
+	include/instruction.h
+	include/irPrinter.h
+	include/x86Instruction.h
+	include/irInstruction.h
+	include/jit.h
+	include/irTox86Visitor.h
+	include/x86EmitterVisitor.h
 
 	# Flex/Bison files.
 	flex-bison/language_0.l

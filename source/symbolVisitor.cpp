@@ -5,7 +5,7 @@ using namespace std;
 
 SymbolVisitor::SymbolVisitor() : Visitor() {
 	current = global = make_shared<Scope>();
-	memOffset = 20 * 1024;  // arbitrary start at 20k
+	memOffset = 0;
 }
 
 void SymbolVisitor::visit(BlockNode* node){

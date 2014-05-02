@@ -6,7 +6,11 @@
 #include <string>
 #include "constVisitor.h"
 #include "IRGenerator.h"
+#include "irPrinter.h"
 #include "registerVisitor.h"
+#include "irTox86Visitor.h"
+#include "x86EmitterVisitor.h"
+#include "jit.h"
 
 using namespace std;
 
@@ -29,6 +33,7 @@ int main(int argc, char* argv[]) {
 	ofstream outRaw(outname + ".p");
 	ofstream outA(outname + ".a");
 	ofstream irOut(outname + ".ir");
+	ofstream asmOut(outname + ".asm");
 
 	shared_ptr<ASTNode> root;
 
@@ -76,8 +81,28 @@ int main(int argc, char* argv[]) {
 	RegisterVisitor regVisit;
 	((Visitor*) &regVisit)->visit(root.get());
 
-	IRGeneratorVisitor irVisit(&irOut);
+	IRGeneratorVisitor irGenVisit;
+	((Visitor*) &irGenVisit)->visit(root.get());
+
+	IRPrinterVisitor irVisit(&irOut);
 	((Visitor*) &irVisit)->visit(root.get());
+
+	IRTox86Visitor asmVisit;
+	((Visitor*) &asmVisit)->visit(root.get());
+
+	IRPrinterVisitor asmPrintVisit(&asmOut);
+	((Visitor*) &asmPrintVisit)->visit(root.get());
+
+	x86Jitter jitter;
+
+	void* buf = jitter.allocateMemory(4 * 1024, 4 * 1024);
+
+	x86EmitterVisitor x86Visit(buf, jitter.getSize(), (size_t) ((char*) buf + jitter.getDataOffset()));
+	((Visitor*) &x86Visit)->visit(root.get());
+
+	auto fn = jitter.getFunction();
+
+	int rett = (int) fn();
 
 	return ret;
 }

@@ -6,6 +6,7 @@
 #include <vector>
 #include "scope.h"
 #include <memory>
+#include "instruction.h"
 
 // if you want to run a macro on all nodes this is how it is done
 // simply define a macro expecting a name as a parameter
@@ -42,7 +43,9 @@ public:
 	static int nodeCount;
 
 	void addChild(std::shared_ptr<ASTNode> node);
-	void addChildFront(std::shared_ptr<ASTNode> node);
+	void addInstruction(std::shared_ptr<Instruction> instr);
+
+	void printInstructions(std::ostream& out);
 
 	size_t uniqueID;
 
@@ -64,7 +67,8 @@ public:
 	std::string str;
 
 	// TODO: Children should know about their parent.
-	std::vector<std::shared_ptr<ASTNode> > children;
+	std::vector<std::shared_ptr<ASTNode>> children;
+	std::vector<std::shared_ptr<Instruction>> instructions;
 
 	ASTNode(std::string str = "")
 		: isConst(false), str(str) {

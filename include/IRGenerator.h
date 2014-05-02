@@ -1,5 +1,4 @@
 #pragma once
-#include <fstream>
 #include <vector>
 #include <string>
 #include "visitor.h"
@@ -7,14 +6,14 @@
 
 class IRGeneratorVisitor : public Visitor {
 public:
-	IRGeneratorVisitor(std::ofstream* _irFile);
+	IRGeneratorVisitor();
 	void visit(ExpressionNode* node);
 	void visit(AssignmentNode* node);
 	void visit(WhileNode* node);
 	void visit(IfNode* node);
+	void visit(ReturnNode* node);
 
 private:
 	void CalcTree(ASTNode* node, std::vector<std::string>& regList, int vectStart = 0);
 	void CalcTree(std::shared_ptr<ASTNode> node, std::vector<std::string>& regList, int vectStart = 0);
-	std::ofstream* irFile;
 };
