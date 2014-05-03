@@ -8,17 +8,17 @@
 // some  of these macros require more arguments
 #define PERFORM_INSTR(INSTR_MACRO)  \
             INSTR_MACRO(Mv)         \
-            INSTR_MACRO(Memld)		\
-            INSTR_MACRO(Immld)		\
-            INSTR_MACRO(Memst)		\
+            INSTR_MACRO(Memld)	\
+            INSTR_MACRO(Immld)	\
+            INSTR_MACRO(Memst)	\
             INSTR_MACRO(Push)		\
             INSTR_MACRO(Mempush)	\
             INSTR_MACRO(Immpush)	\
             INSTR_MACRO(Pop)		\
-            INSTR_MACRO(Mempop)		\
+            INSTR_MACRO(Mempop)	\
             INSTR_MACRO(Jump)		\
-            INSTR_MACRO(BFalse)		\
-            INSTR_MACRO(BTrue)		\
+            INSTR_MACRO(BFalse)	\
+            INSTR_MACRO(BTrue)	\
             INSTR_MACRO(Bgt)		\
             INSTR_MACRO(Bge)		\
             INSTR_MACRO(Beq)		\
@@ -28,15 +28,27 @@
             INSTR_MACRO(Reljump)	\
             INSTR_MACRO(Relbfalse)	\
             INSTR_MACRO(Relbtrue)	\
-            INSTR_MACRO(Relbgt)		\
-            INSTR_MACRO(Relbge)		\
-            INSTR_MACRO(Relbeq)		\
+            INSTR_MACRO(Relbgt)	\
+            INSTR_MACRO(Relbge)	\
+            INSTR_MACRO(Relbeq)	\
             INSTR_MACRO(Relbneq)	\
-            INSTR_MACRO(Relblt)		\
-            INSTR_MACRO(Relble)		\
+            INSTR_MACRO(Relblt)	\
+            INSTR_MACRO(Relble)	\
             INSTR_MACRO(Call)		\
-            INSTR_MACRO(Return)		\
+            INSTR_MACRO(Return)	\
             INSTR_MACRO(Calc)		\
+            INSTR_MACRO(Add)        \
+            INSTR_MACRO(Sub)        \
+            INSTR_MACRO(Mult)       \
+            INSTR_MACRO(Div)        \
+            INSTR_MACRO(GT)         \
+            INSTR_MACRO(GTEq)       \
+            INSTR_MACRO(Equal)      \
+            INSTR_MACRO(LT)         \
+            INSTR_MACRO(LTEq)       \
+            INSTR_MACRO(ShiftL)     \
+            INSTR_MACRO(ShiftR)     \
+
 
 class Instruction {
 public:
