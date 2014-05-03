@@ -1,24 +1,28 @@
 #!/bin/bash
 
+######################################################################
 #   Assumes the following folder setup:
 #
 #   The 'root' directory is the git-repo root, 'Compiler'
 #
-#   A 'frontend' executable has already been built (see README.md)
-#   in the root.
+#   A 'frontend' executable has already been built (see README.md).
+#   This executable should be in the ./build/ directory (again, 
+#	assuming './' means 'root' or 'Compiler'
 #	
-#   This script should be executed from 'root'.
+#   This script should be executed from 'root', not AS root.
 #	
-#	It needs to be provided a path to a folder containing a set of language files
-#	for testing.
+#	It needs to be provided a path to a folder containing a set of 
+#	language files for testing.
 #
-#	It will make a parsetree.png file in the 'root/output/language-file-name' directory,
-#	as well as dumping the language-file-name.a, language-file-name.err, and 
-#	language-file-name.p into the 'root/output/language-file-name' directory.
+#	It will make a parsetree.png file in the 
+#	'root/output/language-file-name' directory,	as well as dumping 
+#	the language-file-name.a, language-file-name.err, 
+#	language-file-name.asm, and language-file-name.p into the 
+#	'root/output/language-file-name' directory.
 #
-# 	TL;DR: Takes a directory, tests all files in the directory. Outputs files into:
-#	'root/output/language-file-name'.
-
+# 	TL;DR: Takes a directory, tests all files in the directory. 
+#	Outputs files into: '/root/output/language-file-name'.
+######################################################################
 
 for file in ${1}* ; do
 	
