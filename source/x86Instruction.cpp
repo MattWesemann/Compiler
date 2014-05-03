@@ -81,7 +81,7 @@ void x86Mov::emitBinary(char* bytes, size_t& offset, size_t len, size_t dataOffs
 	// mov [reg1], reg2  ; [reg2][reg1]
 	// mov reg1, [reg2]  ;  [reg1][reg2]
 	// second op code of instruction
-	static char derefOps[4][4] = { { 0x00, 0x01, 0x02, 0x03 },
+	static unsigned char derefOps[4][4] = { { 0x00, 0x01, 0x02, 0x03 },
 	                               { 0x08, 0x09, 0x0A, 0x0B },
 	                               { 0x10, 0x11, 0x12, 0x13 },
 	                               { 0x18, 0x19, 0x1A, 0x1B } };
@@ -104,8 +104,8 @@ void x86Mov::emitBinary(char* bytes, size_t& offset, size_t len, size_t dataOffs
 	if (deref1 && deref2)
 		return;
 
-	char reg1 = regToInt(trueOp1);
-	char reg2 = regToInt(trueOp2);
+	int reg1 = regToInt(trueOp1);
+	int reg2 = regToInt(trueOp2);
 
 	if (reg1 == -1 && reg2 == -1)
 		return;
@@ -114,7 +114,7 @@ void x86Mov::emitBinary(char* bytes, size_t& offset, size_t len, size_t dataOffs
 	// dealing loading addresses. Because of that it takes 2 instructions to load at a memory - including
 	// using a register that may already be holding something useful. So we push it to the stack.
 	if (deref1){
-		char tempReg = (reg2 + 1) % 4;
+		int tempReg = (reg2 + 1) % 4;
 		if (reg1 == -1){
 			// pop reg
 			emitByte(bytes, offset, len, 0x50 + tempReg);
@@ -140,7 +140,7 @@ void x86Mov::emitBinary(char* bytes, size_t& offset, size_t len, size_t dataOffs
 		}
 	}
 	else if (deref2){
-		char tempReg = (reg1 + 1) % 4;
+		int tempReg = (reg1 + 1) % 4;
 		if (reg2 == -1){
 			// pop reg
 			emitByte(bytes, offset, len, 0x50 + tempReg);

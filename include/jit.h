@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdlib>
 
 class x86Jitter {
 public:

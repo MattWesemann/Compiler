@@ -16,6 +16,8 @@ using namespace std;
 
 shared_ptr<ofstream> cerrFile;
 
+int yyparse(shared_ptr<ASTNode>& root);
+
 void handleError(const char* msg, int lineno){
 	*cerrFile << "[Error] " << msg << " on line " << lineno << endl;
 }
@@ -102,7 +104,7 @@ int main(int argc, char* argv[]) {
 
 	auto fn = jitter.getFunction();
 
-	int rett = (int) fn();
+	int rett = (int) (size_t) fn();
 
 	return ret;
 }

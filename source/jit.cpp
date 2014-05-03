@@ -89,7 +89,7 @@ void* x86Jitter::allocateMemory(size_t codeSize, size_t dataSize){
 
 	size = data + dataOffset;
 
-	mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	return mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 }
 
 x86Jitter::JittedFunc x86Jitter::getFunction(){
