@@ -19,7 +19,11 @@ void SymbolTable::enterSymbol(string& name, Attributes& attributes) {
 }
 
 shared_ptr<Symbol> SymbolTable::retrieveSymbol(string& name) {
-	return symbols[name];
+	auto result = symbols.find(name);
+	if (result == symbols.end()) {
+		return shared_ptr<Symbol>();
+	}
+	return result->second;
 }
 
 bool SymbolTable::declaredLocally(string& name) {

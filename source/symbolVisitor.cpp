@@ -10,9 +10,11 @@ SymbolVisitor::SymbolVisitor() : Visitor() {
 
 void SymbolVisitor::visit(BlockNode* node){
 	auto old = current;
+	int oldOffset = memOffset;
 	current = make_shared<Scope>(current.get());	
 	node->nodeScope = current;
 	Visitor::visit(node);
+	memOffset = oldOffset;
 	current = old;
 }
 
@@ -28,13 +30,22 @@ void SymbolVisitor::visit(DeclarationNode* node){
 	attr.type = node->children[0]->str;
 	attr.isConst = node->children[0]->isConst;
 	for (size_t i = 1; i < node->children.size(); ++i){
+		string name;
 		try {
 			attr.memLoc = memOffset;
-			string name = getSymName(node->children[i].get());
+			name = getSymName(node->children[i].get());
+			if (current != global){			
+				auto sym = global->getSymbol(name);
+				if (sym.get() != nullptr){	
+					errors.push_back("Symbol already exists as a global: " + name + " at line no: " + to_string(node->children[i]->lineno));
+					continue;
+				}
+				
+			}
 			current->createSymbol(name, attr);
 			memOffset += 4; // ints are size 4 for now
 		} catch (exception&) {
-			errors.push_back("Symbol already exists: " + node->children[i]->str + " at line no: " + to_string(node->children[i]->lineno));
+			errors.push_back("Symbol already exists: " + name + " at line no: " + to_string(node->children[i]->lineno));
 		}	
 	}
 	

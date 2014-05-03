@@ -102,9 +102,9 @@ int main(int argc, char* argv[]) {
 	x86EmitterVisitor x86Visit(buf, jitter.getSize(), (size_t) ((char*) buf + jitter.getDataOffset()));
 	((Visitor*) &x86Visit)->visit(root.get());
 
-	auto fn = jitter.getFunction();
+	//auto fn = jitter.getFunction();
 
-	int rett = (int) (size_t) fn();
+	//int rett = (int) (size_t) fn();
 
 	return ret;
 }
