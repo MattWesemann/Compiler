@@ -17,3 +17,8 @@ build/
 
 # Windows executable files
 *.exe
+
+
+# Stupid text editor temp files
+*~
+*#
