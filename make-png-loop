@@ -7,65 +7,65 @@
 #
 #   A 'frontend' executable has already been built (see README.md).
 #   This executable should be in the ./build/ directory (again, 
-#	assuming './' means 'root' or 'Compiler'
-#	
+#   assuming './' means 'root' or 'Compiler'
+#   
 #   This script should be executed from 'root', not AS root.
-#	
-#	It needs to be provided a path to a folder containing a set of 
-#	language files for testing.
+#   
+#   It needs to be provided a path to a folder containing a set of 
+#   language files for testing.
 #
-#	It will make a parsetree.png file in the 
-#	'root/output/language-file-name' directory,	as well as dumping 
-#	the language-file-name.a, language-file-name.err, 
-#	language-file-name.asm, and language-file-name.p into the 
-#	'root/output/language-file-name' directory.
+#   It will make a parsetree.png file in the 
+#   'root/output/language-file-name' directory, as well as dumping 
+#   the language-file-name.a, language-file-name.err, 
+#   language-file-name.asm, and language-file-name.p into the 
+#   'root/output/language-file-name' directory.
 #
-# 	TL;DR: Takes a directory, tests all files in the directory. 
-#	Outputs files into: '/root/output/language-file-name'.
+#   TL;DR: Takes a directory, tests all files in the directory. 
+#   Outputs files into: '/root/output/language-file-name'.
 ######################################################################
 
 for file in ${1}* ; do
-	
-	if [[ -d ${file} ]] ; then
-		continue
-	fi
+    
+    if [[ -d ${file} ]] ; then
+        continue
+    fi
 
-	shortFile=${file##*/}
-	
-	cat ${file} | ./build/frontend ${file}
-	
-	if [[ $? -ne 0 ]] ; then
-		echo -e "Processing ${file} resulted in an error. Check the ./output/${shortFile} directory's .err file.\n"
-	fi
-	
-	mkdir -p ./output/${shortFile}
-	
-	if [[ -f ${file}.err ]] ; then
-		mv ${file}.err ./output/${shortFile}
-	fi
-	
-	if [[ -f ${file}.p ]] ; then 
-		mv ${file}.p ./output/${shortFile}
-	fi
-	
-	if [[ -f ${file}.a ]] ; then
-		mv ${file}.a ./output/${shortFile}
-	fi
-	
-	if [[ -f ${file}.ir ]] ; then
-		mv ${file}.ir ./output/${shortFile}
-	fi
+    shortFile=${file##*/}
+    
+    cat ${file} | ./build/frontend ${file}
+    
+    if [[ $? -ne 0 ]] ; then
+        echo -e "Processing ${file} resulted in an error. Check the ./output/${shortFile} directory's .err file.\n"
+    fi
+    
+    mkdir -p ./output/${shortFile}
+    
+    if [[ -f ${file}.err ]] ; then
+        mv ${file}.err ./output/${shortFile}
+    fi
+    
+    if [[ -f ${file}.p ]] ; then 
+        mv ${file}.p ./output/${shortFile}
+    fi
+    
+    if [[ -f ${file}.a ]] ; then
+        mv ${file}.a ./output/${shortFile}
+    fi
+    
+    if [[ -f ${file}.ir ]] ; then
+        mv ${file}.ir ./output/${shortFile}
+    fi
 
-	if [[ -f ${file}.asm ]] ; then
-		mv ${file}.asm ./output/${shortFile}
-	fi
+    if [[ -f ${file}.asm ]] ; then
+        mv ${file}.asm ./output/${shortFile}
+    fi
 
-	cd ./output/${shortFile}
-	
-	if [[ -f ${shortFile}.a ]] ; then
-		cat ${shortFile}.a | ../../parse-tree-to-graphvis.py | dot -T png -o parsetree.png
-	fi
-	
-	cd ../..
-	
+    cd ./output/${shortFile}
+    
+    if [[ -f ${shortFile}.a ]] ; then
+        cat ${shortFile}.a | ../../parse-tree-to-graphvis.py | dot -T png -o parsetree.png
+    fi
+    
+    cd ../..
+    
 done
