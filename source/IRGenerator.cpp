@@ -72,12 +72,12 @@ void IRGeneratorVisitor::visit(WhileNode* node){
 
 void IRGeneratorVisitor::visit(ExpressionNode* node){
 	vector<string> regList;
-	CalcTree(node, regList);
+	CalcTree(node, "R9", regList);
 }
 
 void IRGeneratorVisitor::visit(AssignmentNode* node){
 	vector<string> regList;
-	CalcTree(node->children[1], regList);
+	CalcTree(node->children[1], "R9", regList);
 	auto attr = node->children[0]->nodeScope->getSymbol(node->children[0]->str)->getAttributes();
 
 	node->addInstruction(make_shared<MemstInstr>("R0", to_string(attr.memLoc), node->children[0]->str));
@@ -89,8 +89,10 @@ void IRGeneratorVisitor::visit(AssignmentNode* node){
 
 void IRGeneratorVisitor::visit(ReturnNode* node){
 	vector<string> regList;
+
 	if(node->children.size())
-		CalcTree(node->children[0], regList);
+		CalcTree(node->children[0], "R9", regList);
+
 	node->addInstruction(make_shared<ReturnInstr>());
 
 	for( auto child : node->children){
@@ -98,43 +100,113 @@ void IRGeneratorVisitor::visit(ReturnNode* node){
 	}
 }
 
-void IRGeneratorVisitor::CalcTree(std::shared_ptr<ASTNode> node, vector<string>& regList, int vectStart){
-	CalcTree(node.get(), regList, vectStart);
+string IRGeneratorVisitor::CalcTree(std::shared_ptr<ASTNode> node, string rw, vector<string>& regList, int vectStart){
+	return CalcTree(node.get(), rw, regList, vectStart);
 }
 
-void IRGeneratorVisitor::CalcTree(ASTNode* node, vector<string>& regList, int vectStart) {
-	if(regList.size() == 0)
-			regList.push_back("R0");
+string IRGeneratorVisitor::getRW2(string rw) {
+	return "R" + to_string(rw[1] - '0' + 1);
+}
+
+string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& regList, int vectStart) {
+	
+	int x = regList.size();
+	while (x < 9) {
+		regList.push_back("R" + to_string(x++));
+	}
+	
 
 	while (node->regCount + vectStart > regList.size()) {
 		size_t currentSize = regList.size();
-		for(size_t i = regList.size(); i < 2*currentSize; ++i)
-			regList.push_back("R" + to_string(i));
+		
+		regList.push_back("V" + to_string(x++-9));
 	} 
+
+	string u = regList[vectStart];
 
 	if (node->to_type() == ASTNode::NodeType::Symbol) {
 		auto attr = node->nodeScope->getSymbol(node->str)->getAttributes();
-
-		node->addInstruction(make_shared<MemldInstr>(regList[vectStart], to_string(attr.memLoc), node->str));
+		node->addInstruction(make_shared<MemldInstr>(rw, to_string(attr.memLoc), node->str));
+		return rw;
 	} else if(node->to_type() == ASTNode::NodeType::Literal) {
+		node->addInstruction(make_shared<ImmldInstr>(rw, node->str));
+		return rw;
+	} 
 
-		node->addInstruction(make_shared<ImmldInstr>(regList[vectStart], node->str));
-	} else {
-		// check for unary
+	else {
+		// check for unary -- this is "fine"
 		if(node->children.size() == 1){
-			CalcTree(node->children[0], regList, vectStart);
+			CalcTree(node->children[0], rw, regList, vectStart);
+			node->addInstruction(make_shared<CalcInstr>(rw, to_string(node->uniqueID), node->str));
+			// return u;
+
+
+		} 
+
+		//cout << (node->children[0]->regCount >= node->children[1]->regCount);
+
+		else if(node->children[0]->regCount >= node->children[1]->regCount){
+			string s = CalcTree(node->children[0], "R9", regList, vectStart);
+			string t = CalcTree(node->children[1], "R10", regList, vectStart + 1);
+
+			// auto attr = node->nodeScope->getSymbol(node->str)->getAttributes();
+			// cout << "hello\n";
+			// cout << node->to_string() << '\n';
+			// cout << "bananaphone\n";
+			// node->str = "HEY THERE!";
+			// cout << node->str;
+
+			auto attr = node->nodeScope->getSymbol(node->str)->getAttributes();
+
+			string s = "abc";
+			string t = "abc";
+			u = "abc";
+
+			if (s[0] == 'V') {
+				node->addInstruction(make_shared<MemldInstr>(rw, to_string(attr.memLoc), node->str));
+			}
+			if(t[0] == 'V') {
+				node->addInstruction(make_shared<MemldInstr>(getRW2(rw), to_string(attr.memLoc), node->str));
+			}
+			if (u[0] == 'V') {
+
+				addOPInstruction(node, rw, to_string(attr.memLoc));
+				node->addInstruction(make_shared<MemstInstr>(u, to_string(attr.memLoc), node->str));
+				
+
+			} else {
+				addOPInstruction(node, u, to_string(attr.memLoc));
+			}
+			return u;
 
 			node->addInstruction(make_shared<CalcInstr>(regList[vectStart], to_string(node->uniqueID), node->str));
-		} else if(node->children[0]->regCount >= node->children[1]->regCount){
-			CalcTree(node->children[0], regList, vectStart);
-			CalcTree(node->children[1], regList, vectStart + 1);
+		}
 
-			node->addInstruction(make_shared<CalcInstr>(regList[vectStart], to_string(node->uniqueID), node->str));
+		// comment out...
 		} else {
-			CalcTree(node->children[1], regList, vectStart);
-			CalcTree(node->children[0], regList, vectStart + 1);
+			string s = CalcTree(node->children[1], "R9", regList, vectStart);
+			string t = CalcTree(node->children[0], "R10", regList, vectStart + 1);
+			auto attr = node->nodeScope->getSymbol(node->str)->getAttributes();
 
-			node->addInstruction(make_shared<CalcInstr>(regList[vectStart], to_string(node->uniqueID), node->str));
+			if (s[0] == 'V') {
+				node->addInstruction(make_shared<MemldInstr>(getRW2(rw), to_string(attr.memLoc), node->str));
+			}
+			if(t[0] == 'V') {
+				node->addInstruction(make_shared<MemldInstr>(rw, to_string(attr.memLoc), node->str));
+			}
+			if (u[0] == 'V') {
+
+				addOPInstruction(node, rw, to_string(attr.memLoc));
+				node->addInstruction(make_shared<MemstInstr>(u, to_string(attr.memLoc), node->str));
+				
+
+			} else {
+				addOPInstruction(node, u, to_string(attr.memLoc));
+			}
+			return u;
+
+			// node->addInstruction(make_shared<CalcInstr>(regList[vectStart], to_string(node->uniqueID), node->str));
+
 		}
 
 		if (node->to_type() == ASTNode::NodeType::Assignment){
@@ -142,9 +214,54 @@ void IRGeneratorVisitor::CalcTree(ASTNode* node, vector<string>& regList, int ve
 
 			node->addInstruction(make_shared<MemstInstr>(regList[vectStart], to_string(attr.memLoc), node->children[0]->str));
 		}
+		// return u;
 	}
+	//return u;
+	
+	
+	
+	return u;
+}
 
+void IRGeneratorVisitor::addOPInstruction(ASTNode* node, string workingRegister, string memLocation) {
 	for( auto child : node->children){		
 		node->instructionSize += child->instructionSize;
 	}
+
+	if (node->str == "+") {
+		node->addInstruction(make_shared<AddInstr>(workingRegister, memLocation, node->str));
+	}
+	else if (node->str == "-") {
+		node->addInstruction(make_shared<SubInstr>(workingRegister, memLocation, node->str));
+	}
+	else if (node->str == "*") {
+		node->addInstruction(make_shared<MultInstr>(workingRegister, memLocation, node->str));
+	}
+	else if (node->str == "/") {
+		node->addInstruction(make_shared<DivInstr>(workingRegister, memLocation, node->str));
+	}
+	else if (node->str == ">") {
+		node->addInstruction(make_shared<GTInstr>(workingRegister, memLocation, node->str));
+	}
+	else if (node->str == ">=") {
+		node->addInstruction(make_shared<GTEqInstr>(workingRegister, memLocation, node->str));
+	}
+	else if (node->str == "==") {
+		node->addInstruction(make_shared<EqualInstr>(workingRegister, memLocation, node->str));
+	}
+	else if (node->str == "<") {
+		node->addInstruction(make_shared<LTInstr>(workingRegister, memLocation, node->str));
+	}
+	else if (node->str == "<=") {
+		node->addInstruction(make_shared<LTEqInstr>(workingRegister, memLocation, node->str));
+	}
+	else if (node->str == "<<") {
+		node->addInstruction(make_shared<ShiftLInstr>(workingRegister, memLocation, node->str));
+	}
+	else if (node->str == ">>") {
+		node->addInstruction(make_shared<ShiftRInstr>(workingRegister, memLocation, node->str));
+	} else {
+		node->addInstruction(make_shared<CalcInstr>(workingRegister, memLocation, node->str));
+	}
+
 }
