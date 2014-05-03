@@ -79,7 +79,7 @@ void* x86Jitter::allocateMemory(size_t codeSize, size_t dataSize){
 	if (buf)
 		return buf;
 
-	size_t dataOffset = pageSize;
+	dataOffset = pageSize;
 	while (dataOffset < codeSize)
 		dataOffset *= 2;
 
