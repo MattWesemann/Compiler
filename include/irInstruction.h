@@ -51,5 +51,5 @@ DEFINSTR(Relbneq, true, true, 0, "relbneq")
 DEFINSTR(Relblt, true, true, 0, "relblt")
 DEFINSTR(Relble, true, true, 0, "relble")
 DEFINSTR(Call, true, false, 0, "call")
-DEFINSTR(Return, false, false, 0, "return")
+DEFINSTR(Return, false, false, 0, "jump +0")   // stupid hack because aparently we can't have real return statements
 DEFINSTR(Calc, true, true, 0, "calc")

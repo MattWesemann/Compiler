@@ -69,12 +69,14 @@ public:
 	// TODO: Children should know about their parent.
 	std::vector<std::shared_ptr<ASTNode>> children;
 	std::vector<std::shared_ptr<Instruction>> instructions;
+	size_t instructionSize;
 
 	ASTNode(std::string str = "")
 		: isConst(false), str(str) {
 		nodeCount += 1;
 		uniqueID = nodeCount;
 		regCount = 0;
+		instructionSize = 0;
 	}
 
 	// Modifies a vector to add copies of all children, grand children, etc.

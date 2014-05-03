@@ -8,6 +8,14 @@ using namespace std;
 IRGeneratorVisitor::IRGeneratorVisitor() {
 }
 
+void IRGeneratorVisitor::visit(ProgramNode* node){
+	Visitor::visit(node);
+	
+	for( auto child : node->children){
+		node->instructionSize += child->instructionSize;
+	}
+}
+
 void IRGeneratorVisitor::visit(IfNode* node){
 	Visitor::visit(node->children[0]);
 
@@ -15,29 +23,51 @@ void IRGeneratorVisitor::visit(IfNode* node){
 
 	auto jumpTarget = node->children[2];
 
-	node->children[0]->addInstruction(make_shared<BFalseInstr>(to_string(jumpTarget->uniqueID), ", R0"));
-
 	// visit block
 	Visitor::visit(node->children[1]);
 
 	if (hasElse){
-		node->children[1]->addInstruction(make_shared<JumpInstr>(to_string(node->children[3]->uniqueID)));
-	}
-
-	// visit else
-	if(hasElse)
+		// visit else
 		Visitor::visit(node->children[2]);
+		node->children[1]->addInstruction(make_shared<JumpInstr>("+" + to_string(node->children[2]->instructionSize + 1))); //PC is not incremented for some reason. 
+	}
+	node->children[0]->addInstruction(make_shared<BFalseInstr>("+" + to_string(node->children[1]->instructionSize + 1), "R0")); //PC is not incremented for some reason. 
+	for( auto child : node->children){
+		node->instructionSize += child->instructionSize;
+	}
 }
 
+void IRGeneratorVisitor::visit(BlockNode* node){
+	Visitor::visit(node);
+	
+	for( auto child : node->children){
+		node->instructionSize += child->instructionSize;
+	}
+}
+
+void IRGeneratorVisitor::visit(DeclarationNode* node){
+	Visitor::visit(node);
+	
+	for( auto child : node->children){
+		node->instructionSize += child->instructionSize;
+	}
+}
 void IRGeneratorVisitor::visit(WhileNode* node){
 	Visitor::visit(node->children[0]);
 	auto jumpTarget = node->children[2];
-	node->children[0]->addInstruction(make_shared<BFalseInstr>(to_string(jumpTarget->uniqueID), "R0"));
 
 	// visit block
 	Visitor::visit(node->children[1]);
+	
+	JumpInstr instruction;
+	
+	node->children[0]->addInstruction(make_shared<BFalseInstr>("+" + to_string(node->children[1]->instructionSize +2), "R0")); //1 for the instruction we add in children[1], 1 because pc is not incremented.
 
-	node->children[1]->addInstruction(make_shared<JumpInstr>(to_string(node->uniqueID)));
+	node->children[1]->addInstruction(make_shared<JumpInstr>("-" + to_string( node->children[1]->instructionSize + node->children[0]->instructionSize )));
+
+	for( auto child : node->children){
+		node->instructionSize += child->instructionSize;
+	}
 }
 
 void IRGeneratorVisitor::visit(ExpressionNode* node){
@@ -51,12 +81,21 @@ void IRGeneratorVisitor::visit(AssignmentNode* node){
 	auto attr = node->children[0]->nodeScope->getSymbol(node->children[0]->str)->getAttributes();
 
 	node->addInstruction(make_shared<MemstInstr>("R0", to_string(attr.memLoc), node->children[0]->str));
+	
+	for( auto child : node->children){
+		node->instructionSize += child->instructionSize;
+	}
 }
 
 void IRGeneratorVisitor::visit(ReturnNode* node){
 	vector<string> regList;
-	CalcTree(node->children[0], regList);
+	if(node->children.size())
+		CalcTree(node->children[0], regList);
 	node->addInstruction(make_shared<ReturnInstr>());
+
+	for( auto child : node->children){
+		node->instructionSize += child->instructionSize;
+	}
 }
 
 void IRGeneratorVisitor::CalcTree(std::shared_ptr<ASTNode> node, vector<string>& regList, int vectStart){
@@ -103,5 +142,9 @@ void IRGeneratorVisitor::CalcTree(ASTNode* node, vector<string>& regList, int ve
 
 			node->addInstruction(make_shared<MemstInstr>(regList[vectStart], to_string(attr.memLoc), node->children[0]->str));
 		}
+	}
+
+	for( auto child : node->children){		
+		node->instructionSize += child->instructionSize;
 	}
 }

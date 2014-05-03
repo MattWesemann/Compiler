@@ -15,6 +15,7 @@ void ASTNode::addChild(std::shared_ptr<ASTNode> node) {
 
 void ASTNode::addInstruction(shared_ptr<Instruction> instr){
 	instructions.push_back(instr);
+	instructionSize+=1;
 }
 
 void ASTNode::printInstructions(ostream& out){
