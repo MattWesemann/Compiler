@@ -36,7 +36,10 @@ void RegisterVisitor::numberNode(ASTNode* node) {
 		}
 		
 		int left = node->children[0]->regCount;
-		int right = node->children[1]->regCount;
+
+		int right = 0;
+		if (node->children.size() > 1)
+			right = node->children[1]->regCount;
 
 		if (left == right) {
 			node->regCount = right + 1;

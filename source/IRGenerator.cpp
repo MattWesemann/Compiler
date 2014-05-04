@@ -117,16 +117,28 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 	
 
 	while (node->regCount + vectStart > regList.size()) {
-		regList.push_back("V" + to_string(x++-9));
+		regList.push_back("V" + to_string(x++ - 9));
 	} 
 
 	string u = regList[vectStart];
 
 	if (node->to_type() == ASTNode::NodeType::Symbol) {
 		auto attr = node->nodeScope->getSymbol(node->str)->getAttributes();
-		node->addInstruction(make_shared<MemldInstr>(u, to_string(attr.memLoc), node->str));
+		if (u[0] == 'V') {
+			node->addInstruction(make_shared<MemldInstr>(rw, to_string(attr.memLoc), node->str));
+			node->addInstruction(make_shared<PushInstr>(rw, node->str));
+		}
+		else {
+			node->addInstruction(make_shared<MemldInstr>(u, to_string(attr.memLoc), node->str));
+		}	
 	} else if(node->to_type() == ASTNode::NodeType::Literal) {
-		node->addInstruction(make_shared<ImmldInstr>(u, node->str));
+		if (u[0] == 'V') {
+			node->addInstruction(make_shared<ImmldInstr>(rw, node->str));
+			node->addInstruction(make_shared<PushInstr>(rw, node->str));
+		}
+		else {
+			node->addInstruction(make_shared<ImmldInstr>(u, node->str));
+		}	
 	} 
 	else {
 		// check for unary -- this is "fine"
@@ -169,7 +181,6 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 		else {
 			string s = CalcTree(node->children[1], rw, regList, vectStart);
 			string t = CalcTree(node->children[0], getRW2(rw), regList, vectStart + 1);
-			auto attr = node->nodeScope->getSymbol(node->str)->getAttributes();
 
 			if (t[0] == 'V') {
 				node->addInstruction(make_shared<PopInstr>(rw, node->str));
@@ -242,41 +253,27 @@ void IRGeneratorVisitor::addOPInstruction(ASTNode* node, string target, string l
 }
 
 void IRGeneratorVisitor::unaryInstruction(ASTNode* node, string target, string lReg) {
-
-	/*if (node->str == "+") {
-		node->addInstruction(make_shared<AddInstr>(target, lReg, rReg));
+	if (node->str == "+") {
+		node->addInstruction(make_shared<PosInstr>(target, lReg));
 	}
 	else if (node->str == "-") {
-		node->addInstruction(make_shared<SubInstr>(target, lReg, rReg));
+		node->addInstruction(make_shared<NegInstr>(target, lReg));
 	}
 	else if (node->str == "*") {
-		node->addInstruction(make_shared<MultInstr>(target, lReg, rReg));
 	}
-	else if (node->str == "/") {
-		node->addInstruction(make_shared<DivInstr>(target, lReg, rReg));
+	else if (node->str == "&") {
 	}
-	else if (node->str == ">") {
-		node->addInstruction(make_shared<GTInstr>(target, lReg, rReg));
+	else if (node->str == "~") {
+		node->addInstruction(make_shared<BNegInstr>(target, lReg));
 	}
-	else if (node->str == ">=") {
-		node->addInstruction(make_shared<GTEqInstr>(target, lReg, rReg));
+	else if (node->str == "!") {
+		node->addInstruction(make_shared<LNegInstr>(target, lReg));
 	}
-	else if (node->str == "==") {
-		node->addInstruction(make_shared<EqualInstr>(target, lReg, rReg));
+	else if (node->str == "++") {
 	}
-	else if (node->str == "<") {
-		node->addInstruction(make_shared<LTInstr>(target, lReg, rReg));
+	else if (node->str == "--") {
 	}
-	else if (node->str == "<=") {
-		node->addInstruction(make_shared<LTEqInstr>(target, lReg, rReg));
-	}
-	else if (node->str == "<<") {
-		node->addInstruction(make_shared<ShiftLInstr>(target, lReg, rReg));
-	}
-	else if (node->str == ">>") {
-		node->addInstruction(make_shared<ShiftRInstr>(target, lReg, rReg));
-	} else {
-		cout << "Does this happen?\n";
+	else {
 		node->addInstruction(make_shared<CalcInstr>(target, "", node->str));
-	}*/
+	}
 }
