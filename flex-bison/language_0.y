@@ -521,6 +521,10 @@ ReturnStatement:
     $$->lineno = yyget_lineno();
     $$->addChild($2);
   }
+| returnKeyword ';' {
+    $$ = std::make_shared<ReturnNode>();
+    $$->lineno = yyget_lineno();
+  }
 ;
 
 %%

@@ -11,6 +11,7 @@
 #include "irTox86Visitor.h"
 #include "x86EmitterVisitor.h"
 #include "jit.h"
+#include "offsetVisitor.h"
 
 using namespace std;
 
@@ -81,26 +82,29 @@ int main(int argc, char* argv[]) {
 	root->print_tree(outA);
 
 	RegisterVisitor regVisit;
-	((Visitor*) &regVisit)->visit(root.get());
+	((Visitor*) &regVisit)->visit(root);
 
 	IRGeneratorVisitor irGenVisit;
-	((Visitor*) &irGenVisit)->visit(root.get());
+	((Visitor*) &irGenVisit)->visit(root);
+
+	OffsetVisitor offvisit(root->instructionSize*4);  // all instructions are 4 bytes
+	((Visitor*) &offvisit)->visit(root);
 
 	IRPrinterVisitor irVisit(&irOut);
-	((Visitor*) &irVisit)->visit(root.get());
+	((Visitor*) &irVisit)->visit(root);
 
 	IRTox86Visitor asmVisit;
-	((Visitor*) &asmVisit)->visit(root.get());
+	((Visitor*) &asmVisit)->visit(root);
 
 	IRPrinterVisitor asmPrintVisit(&asmOut);
-	((Visitor*) &asmPrintVisit)->visit(root.get());
+	((Visitor*) &asmPrintVisit)->visit(root);
 
 	x86Jitter jitter;
 
 	void* buf = jitter.allocateMemory(4 * 1024, 4 * 1024);
 
 	x86EmitterVisitor x86Visit(buf, jitter.getSize(), (size_t) ((char*) buf + jitter.getDataOffset()));
-	((Visitor*) &x86Visit)->visit(root.get());
+	((Visitor*) &x86Visit)->visit(root);
 
 	//auto fn = jitter.getFunction();
 
