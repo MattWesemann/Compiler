@@ -125,12 +125,9 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 	if (node->to_type() == ASTNode::NodeType::Symbol) {
 		auto attr = node->nodeScope->getSymbol(node->str)->getAttributes();
 		node->addInstruction(make_shared<MemldInstr>(u, to_string(attr.memLoc), node->str));
-		return u;
 	} else if(node->to_type() == ASTNode::NodeType::Literal) {
 		node->addInstruction(make_shared<ImmldInstr>(u, node->str));
-		return u;
 	} 
-
 	else {
 		// check for unary -- this is "fine"
 		if(node->children.size() == 1) {
@@ -139,7 +136,13 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 				node->addInstruction(make_shared<PopInstr>(rw, node->str));
 				s = rw;
 			} 
-			unaryInstruction(node, u, s);
+			if (u[0] == 'V') {
+				unaryInstruction(node, rw, s);
+				node->addInstruction(make_shared<PushInstr>(rw, node->str));
+			}
+			else {
+				unaryInstruction(node, u, s);
+			}
 		} 
 
 		else if(node->children[0]->regCount >= node->children[1]->regCount) {
@@ -161,7 +164,6 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 			} else {
 				addOPInstruction(node, u, s, t);
 			}
-			return u;
 		}
 
 		else {
@@ -184,7 +186,6 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 			} else {
 				addOPInstruction(node, u, t, s);
 			}
-			return u;
 		}
 
 		if (node->to_type() == ASTNode::NodeType::Assignment){
