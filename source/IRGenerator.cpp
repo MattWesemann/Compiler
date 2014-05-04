@@ -158,7 +158,7 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 			}
 			if (u[0] == 'V') {
 				addOPInstruction(node, rw, s, t);
-				node->addInstruction(make_shared<PushInstr>(u, node->str));
+				node->addInstruction(make_shared<PushInstr>(rw, node->str));
 
 			} else {
 				addOPInstruction(node, u, s, t);
@@ -182,7 +182,7 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 			}
 			if (u[0] == 'V') {
 				addOPInstruction(node, rw, t, s);
-				node->addInstruction(make_shared<PushInstr>(u, node->str));		
+				node->addInstruction(make_shared<PushInstr>(rw, node->str));		
 
 			} else {
 				addOPInstruction(node, u, t, s);
