@@ -234,6 +234,9 @@ void IRGeneratorVisitor::addOPInstruction(ASTNode* node, string target, string l
 	}
 	else if (node->str == ">>") {
 		node->addInstruction(make_shared<ShiftRInstr>(target, lReg, rReg));
+	} 
+	else if (node->str == "^") {
+		node->addInstruction(make_shared<XORInstr>(target, lReg, rReg));
 	} else {
 		node->addInstruction(make_shared<CalcInstr>(target, "", node->str));
 	}

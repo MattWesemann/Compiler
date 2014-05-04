@@ -48,6 +48,7 @@
             INSTR_MACRO(LTEq)       \
             INSTR_MACRO(ShiftL)     \
             INSTR_MACRO(ShiftR)     \
+            INSTR_MACRO(XOR)        \
 
 
 class Instruction {
