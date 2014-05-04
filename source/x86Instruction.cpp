@@ -1,4 +1,5 @@
 #include "x86Instruction.h"
+#include <memory>
 
 using namespace std;
 
@@ -47,13 +48,13 @@ string intToReg(int reg){
 char x86Instruction::convertOpsToHex(string op1, string op2){
 
 	static unsigned char bytes[8][8] = {{ 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7 },
-	                           { 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF },
-	                           { 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7 },
-	                           { 0xD8, 0xD9, 0xDA, 0xDB, 0xDD, 0xDD, 0xDE, 0xDF },
-	                           { 0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7 },
-	                           { 0xE8, 0xE9, 0xEA, 0xEB, 0xEE, 0xED, 0xEE, 0xEF },
-	                           { 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7 },
-	                           { 0xF8, 0xF9, 0xFA, 0xFB, 0xFF, 0xFD, 0xFE, 0xFF }};
+	                                    { 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF },
+	                                    { 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7 },
+	                                    { 0xD8, 0xD9, 0xDA, 0xDB, 0xDD, 0xDD, 0xDE, 0xDF },
+	                                    { 0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7 },
+	                                    { 0xE8, 0xE9, 0xEA, 0xEB, 0xEE, 0xED, 0xEE, 0xEF },
+	                                    { 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7 },
+	                                    { 0xF8, 0xF9, 0xFA, 0xFB, 0xFF, 0xFD, 0xFE, 0xFF }};
 
 	int reg1 = regToInt(op1);
 	int reg2 = regToInt(op2);
@@ -117,10 +118,10 @@ void x86Mov::emitBinary(char* bytes, size_t& offset, size_t len, size_t dataOffs
 		int tempReg = (reg2 + 1) % 4;
 		if (reg1 == -1){
 			// pop reg
-			emitByte(bytes, offset, len, 0x50 + tempReg);
+			emitByte(bytes, offset, len, 0x50 + (unsigned char) tempReg);
 
 			// mov reg, addr
-			emitByte(bytes, offset, len, 0xB8 + tempReg);
+			emitByte(bytes, offset, len, 0xB8 + (unsigned char) tempReg);
 			size_t val = atoi(trueOp1.c_str()) + dataOffset;
 			emitBytes(bytes, offset, len, (char*) &val, sizeof(val));
 
@@ -130,7 +131,7 @@ void x86Mov::emitBinary(char* bytes, size_t& offset, size_t len, size_t dataOffs
 
 			if (reg1 == -1){
 				// pop reg
-				emitByte(bytes, offset, len, 0x58 + tempReg);
+				emitByte(bytes, offset, len, 0x58 + (unsigned char) tempReg);
 			}
 		}
 		else {
@@ -143,10 +144,10 @@ void x86Mov::emitBinary(char* bytes, size_t& offset, size_t len, size_t dataOffs
 		int tempReg = (reg1 + 1) % 4;
 		if (reg2 == -1){
 			// pop reg
-			emitByte(bytes, offset, len, 0x50 + tempReg);
+			emitByte(bytes, offset, len, 0x50 + (unsigned char) tempReg);
 
 			// mov reg, addr
-			emitByte(bytes, offset, len, 0xB8 + tempReg);
+			emitByte(bytes, offset, len, 0xB8 + (unsigned char) tempReg);
 			size_t val = atoi(trueOp2.c_str()) + dataOffset;
 			emitBytes(bytes, offset, len, (char*) &val, sizeof(val));
 
@@ -156,7 +157,7 @@ void x86Mov::emitBinary(char* bytes, size_t& offset, size_t len, size_t dataOffs
 
 			if (reg2 == -1){
 				// pop reg
-				emitByte(bytes, offset, len, 0x58 + tempReg);
+				emitByte(bytes, offset, len, 0x58 + (unsigned char) tempReg);
 			}
 		}
 		else {
@@ -166,11 +167,28 @@ void x86Mov::emitBinary(char* bytes, size_t& offset, size_t len, size_t dataOffs
 		}
 	}
 	else if (reg2 == -1){
-		emitByte(bytes, offset, len, 0xB8 + reg1);
+		emitByte(bytes, offset, len, 0xB8 + (unsigned char) reg1);
 		size_t val = atoi(trueOp2.c_str());
 		emitBytes(bytes, offset, len, (char*) &val, sizeof(val));
 	}
 	else {
 		// bugbug finish this
+	}
+}
+
+void x86Mul::emitBinary(char* bytes, size_t& offset, size_t len, size_t dataOffset){
+	(void) dataOffset;
+
+	char reg2 = regToInt(operand2);
+	if (reg2 != -1){
+		emitByte(bytes, offset, len, 0x0F);
+		emitByte(bytes, offset, len, 0xAF);
+		emitByte(bytes, offset, len, convertOpsToHex(operand1, operand2));
+	}
+	else {
+		emitByte(bytes, offset, len, 0x6B);
+		emitByte(bytes, offset, len, convertOpsToHex(operand1, operand1));
+		int val = atoi(operand2.c_str());
+		emitBytes(bytes, offset, len, (char*) &val, sizeof(val));
 	}
 }

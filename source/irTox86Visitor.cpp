@@ -11,18 +11,30 @@ void IRTox86Visitor::visit(ASTNode* node){
 	Visitor::visit(node);
 }
 
+void IRTox86Visitor::checkOp1IsDest(ASTNode* node, string dest, string op1){
+	if (dest != op1)
+		node->addInstruction(make_shared<x86Mov>(dest, op1));
+}
+
 void IRTox86Visitor::translate(ASTNode* node){
 	auto instructions = std::move(node->instructions);
 
 	for (auto instruction : instructions){
 		string r;
 		switch (instruction->to_type()){
+		case Instruction::InstrType::Add:
+			node->addInstruction(make_shared<x86Add>(instruction->operand2, instruction->operand3));
+			checkOp1IsDest(node, instruction->operand1, instruction->operand2);
+			break;
+		case Instruction::InstrType::Sub:
+			node->addInstruction(make_shared<x86Sub>(instruction->operand2, instruction->operand3));
+			checkOp1IsDest(node, instruction->operand1, instruction->operand2);
+			break;
+		case Instruction::InstrType::Mult:
+			node->addInstruction(make_shared<x86Mul>(instruction->operand2, instruction->operand3));
+			checkOp1IsDest(node, instruction->operand1, instruction->operand2);
+			break;
 		case Instruction::InstrType::Calc:
-			r = "R" + to_string(instruction->operand1[1] - '0' + 1);
-			if (node->str == "+")
-				node->addInstruction(make_shared<x86Add>(instruction->operand1, r));
-			else if (node->str == "-")
-				node->addInstruction(make_shared<x86Sub>(instruction->operand1, r));
 			break;
 		case Instruction::InstrType::Mv:
 			node->addInstruction(make_shared<x86Mov>(instruction->operand1, instruction->operand2));

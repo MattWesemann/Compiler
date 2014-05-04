@@ -42,6 +42,23 @@ public:
 	}
 };
 
+class x86Mul : public x86Instruction {
+public:
+	x86Mul(std::string operand1, std::string operand2 = "", std::string operand3 = "", std::string comment = "") : x86Instruction(operand1, operand2, operand3, comment) {
+		hasOp1 = true;
+		hasOp2 = true;
+		hasOp3 = false;
+		size = 0;
+		op = "mul";
+	}
+
+	Instruction::InstrType to_type(){
+		return Instruction::InstrType::Calc;  // hack for now because nothing better exists
+	}
+
+	void emitBinary(char* bytes, size_t& offset, size_t len, size_t dataOffset);
+};
+
 class x86Sub : public x86Instruction {
 public:
 	x86Sub(std::string operand1, std::string operand2, std::string operand3 = "", std::string comment = "") : x86Instruction(operand1, operand2, operand3, comment) {

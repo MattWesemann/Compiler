@@ -9,4 +9,5 @@ public:
 
 private:
 	void translate(ASTNode* node);
+	void checkOp1IsDest(ASTNode* node, std::string dest, std::string op1);
 };

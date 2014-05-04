@@ -117,8 +117,6 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 	
 
 	while (node->regCount + vectStart > regList.size()) {
-		size_t currentSize = regList.size();
-		
 		regList.push_back("V" + to_string(x++-9));
 	} 
 
@@ -126,22 +124,22 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 
 	if (node->to_type() == ASTNode::NodeType::Symbol) {
 		auto attr = node->nodeScope->getSymbol(node->str)->getAttributes();
-		node->addInstruction(make_shared<MemldInstr>(rw, to_string(attr.memLoc), node->str));
-		return rw;
+		node->addInstruction(make_shared<MemldInstr>(u, to_string(attr.memLoc), node->str));
+		return u;
 	} else if(node->to_type() == ASTNode::NodeType::Literal) {
-		node->addInstruction(make_shared<ImmldInstr>(rw, node->str));
-		return rw;
+		node->addInstruction(make_shared<ImmldInstr>(u, node->str));
+		return u;
 	} 
 
 	else {
 		// check for unary -- this is "fine"
 		if(node->children.size() == 1) {
-			string s = CalcTree(node->children[0], rw, regList, vectStart);
+			string s = CalcTree(node->children[0], u, regList, vectStart);
 			if (s[0] == 'V') {
 				node->addInstruction(make_shared<PopInstr>(rw, node->str));
 				s = rw;
 			} 
-				unaryInstruction(node, rw, s);
+			unaryInstruction(node, u, s);
 		} 
 
 		else if(node->children[0]->regCount >= node->children[1]->regCount) {
@@ -166,7 +164,6 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 			return u;
 		}
 
-		// comment out...
 		else {
 			string s = CalcTree(node->children[1], rw, regList, vectStart);
 			string t = CalcTree(node->children[0], getRW2(rw), regList, vectStart + 1);
@@ -193,7 +190,7 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 		if (node->to_type() == ASTNode::NodeType::Assignment){
 			auto attr = node->children[0]->nodeScope->getSymbol(node->children[0]->str)->getAttributes();
 
-			node->addInstruction(make_shared<MemstInstr>(regList[vectStart], to_string(attr.memLoc), node->children[0]->str));
+			node->addInstruction(make_shared<MemstInstr>(u, to_string(attr.memLoc), node->children[0]->str));
 		}
 	}
 	
