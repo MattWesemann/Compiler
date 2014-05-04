@@ -3,7 +3,7 @@
 
 class x86Instruction : public Instruction {
 public:
-	x86Instruction(std::string operand1, std::string operand2, std::string comment);
+	x86Instruction(std::string operand1, std::string operand2, std::string operand3, std::string comment);
 	static std::string convertRegsiterTox86(std::string regName);
 	static char convertOpsToHex(std::string op1, std::string op2);
 	static char regToInt(std::string regName);
@@ -14,9 +14,10 @@ public:
 
 class x86Add : public x86Instruction {
 public:
-	x86Add(std::string operand1, std::string operand2, std::string comment = "") : x86Instruction(operand1, operand2, comment) {
+	x86Add(std::string operand1, std::string operand2, std::string operand3 = "", std::string comment = "") : x86Instruction(operand1, operand2, operand3, comment) {
 		hasOp1 = true;
 		hasOp2 = true;
+		hasOp3 = false;
 		size = 0;
 		op = "add";
 	}
@@ -43,9 +44,10 @@ public:
 
 class x86Sub : public x86Instruction {
 public:
-	x86Sub(std::string operand1, std::string operand2, std::string comment = "") : x86Instruction(operand1, operand2, comment) {
+	x86Sub(std::string operand1, std::string operand2, std::string operand3 = "", std::string comment = "") : x86Instruction(operand1, operand2, operand3, comment) {
 		hasOp1 = true;
 		hasOp2 = true;
+		hasOp3 = false;
 		size = 0;
 		op = "sub";
 	}
@@ -72,9 +74,10 @@ public:
 
 class x86Mov : public x86Instruction {
 public:
-	x86Mov(std::string operand1, std::string operand2, std::string comment = "") : x86Instruction(operand1, operand2, comment) {
+	x86Mov(std::string operand1, std::string operand2, std::string operand3 = "", std::string comment = "") : x86Instruction(operand1, operand2, operand3, comment) {
 		hasOp1 = true;
 		hasOp2 = true;
+		hasOp3 = false;
 		size = 0;
 		op = "mov";
 	}
@@ -88,9 +91,10 @@ public:
 
 class x86Ret : public x86Instruction {
 public:
-	x86Ret(std::string operand1 = "", std::string operand2 = "", std::string comment = "") : x86Instruction(operand1, operand2, comment) {
+	x86Ret(std::string operand1 = "", std::string operand2 = "", std::string operand3 = "", std::string comment = "") : x86Instruction(operand1, operand2, operand3, comment) {
 		hasOp1 = false;
 		hasOp2 = false;
+		hasOp3 = false;
 		size = 0;
 		op = "ret";
 	}

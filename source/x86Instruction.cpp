@@ -2,8 +2,8 @@
 
 using namespace std;
 
-x86Instruction::x86Instruction(string operand1, string operand2, string comment) 
-			: Instruction(convertRegsiterTox86(operand1), convertRegsiterTox86(operand2), comment) {
+x86Instruction::x86Instruction(string operand1, string operand2, string operand3, string comment) 
+			: Instruction(convertRegsiterTox86(operand1), convertRegsiterTox86(operand2), convertRegsiterTox86(operand3), comment) {
 }
 
 string x86Instruction::convertRegsiterTox86(string regName){

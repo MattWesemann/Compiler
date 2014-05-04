@@ -57,7 +57,7 @@ public:
 		PERFORM_INSTR(ENUMDEFINE)
 	};
 
-	Instruction(std::string operand1, std::string operand2, std::string comment);
+	Instruction(std::string operand1, std::string operand2, std::string operand3, std::string comment);
 
 	// size of this instruction
 	size_t instrSize();
@@ -68,10 +68,12 @@ public:
 
 	bool hasOp1;
 	bool hasOp2;
+      bool hasOp3;
 	size_t size;
 
 	std::string op;
 	std::string operand1;
 	std::string operand2;
+      std::string operand3;
 	std::string comment;  // an optional comment of the form " ; 'comment'"
 };

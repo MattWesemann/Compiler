@@ -135,78 +135,59 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 
 	else {
 		// check for unary -- this is "fine"
-		if(node->children.size() == 1){
-			CalcTree(node->children[0], rw, regList, vectStart);
-			node->addInstruction(make_shared<CalcInstr>(rw, to_string(node->uniqueID), node->str));
-			// return u;
-
-
+		if(node->children.size() == 1) {
+			string s = CalcTree(node->children[0], rw, regList, vectStart);
+			if (s[0] == 'V') {
+				node->addInstruction(make_shared<PopInstr>(rw, node->str));
+				s = rw;
+			} 
+				unaryInstruction(node, rw, s);
 		} 
 
-		//cout << (node->children[0]->regCount >= node->children[1]->regCount);
-
-		else if(node->children[0]->regCount >= node->children[1]->regCount){
-			string s = CalcTree(node->children[0], "R9", regList, vectStart);
-			string t = CalcTree(node->children[1], "R10", regList, vectStart + 1);
-
-			// auto attr = node->nodeScope->getSymbol(node->str)->getAttributes();
-			// cout << "hello\n";
-			// cout << node->to_string() << '\n';
-			// cout << "bananaphone\n";
-			// node->str = "HEY THERE!";
-			// cout << node->str;
-
-			auto attr = node->nodeScope->getSymbol(node->str)->getAttributes();
-
-			string s = "abc";
-			string t = "abc";
-			u = "abc";
-
-			if (s[0] == 'V') {
-				node->addInstruction(make_shared<MemldInstr>(rw, to_string(attr.memLoc), node->str));
+		else if(node->children[0]->regCount >= node->children[1]->regCount) {
+			string s = CalcTree(node->children[0], rw, regList, vectStart);
+			string t = CalcTree(node->children[1], getRW2(rw), regList, vectStart + 1);
+			
+			if (t[0] == 'V') {
+				node->addInstruction(make_shared<PopInstr>(rw, node->str));
+				t = rw;
 			}
-			if(t[0] == 'V') {
-				node->addInstruction(make_shared<MemldInstr>(getRW2(rw), to_string(attr.memLoc), node->str));
+			if(s[0] == 'V') {
+				node->addInstruction(make_shared<PopInstr>(getRW2(rw), node->str));
+				s = getRW2(rw);
 			}
 			if (u[0] == 'V') {
-
-				addOPInstruction(node, rw, to_string(attr.memLoc));
-				node->addInstruction(make_shared<MemstInstr>(u, to_string(attr.memLoc), node->str));
-				
+				addOPInstruction(node, rw, s, t);
+				node->addInstruction(make_shared<PushInstr>(u, node->str));
 
 			} else {
-				addOPInstruction(node, u, to_string(attr.memLoc));
+				addOPInstruction(node, u, s, t);
 			}
 			return u;
-
-			node->addInstruction(make_shared<CalcInstr>(regList[vectStart], to_string(node->uniqueID), node->str));
 		}
 
 		// comment out...
-		} else {
-			string s = CalcTree(node->children[1], "R9", regList, vectStart);
-			string t = CalcTree(node->children[0], "R10", regList, vectStart + 1);
+		else {
+			string s = CalcTree(node->children[1], rw, regList, vectStart);
+			string t = CalcTree(node->children[0], getRW2(rw), regList, vectStart + 1);
 			auto attr = node->nodeScope->getSymbol(node->str)->getAttributes();
 
-			if (s[0] == 'V') {
-				node->addInstruction(make_shared<MemldInstr>(getRW2(rw), to_string(attr.memLoc), node->str));
+			if (t[0] == 'V') {
+				node->addInstruction(make_shared<PopInstr>(rw, node->str));
+				t = rw;
 			}
-			if(t[0] == 'V') {
-				node->addInstruction(make_shared<MemldInstr>(rw, to_string(attr.memLoc), node->str));
+			if(s[0] == 'V') {
+				node->addInstruction(make_shared<PopInstr>(getRW2(rw), node->str));
+				s = getRW2(rw);
 			}
 			if (u[0] == 'V') {
-
-				addOPInstruction(node, rw, to_string(attr.memLoc));
-				node->addInstruction(make_shared<MemstInstr>(u, to_string(attr.memLoc), node->str));
-				
+				addOPInstruction(node, rw, t, s);
+				node->addInstruction(make_shared<PushInstr>(u, node->str));		
 
 			} else {
-				addOPInstruction(node, u, to_string(attr.memLoc));
+				addOPInstruction(node, u, t, s);
 			}
 			return u;
-
-			// node->addInstruction(make_shared<CalcInstr>(regList[vectStart], to_string(node->uniqueID), node->str));
-
 		}
 
 		if (node->to_type() == ASTNode::NodeType::Assignment){
@@ -214,54 +195,87 @@ string IRGeneratorVisitor::CalcTree(ASTNode* node, string rw, vector<string>& re
 
 			node->addInstruction(make_shared<MemstInstr>(regList[vectStart], to_string(attr.memLoc), node->children[0]->str));
 		}
-		// return u;
 	}
-	//return u;
-	
-	
 	
 	return u;
 }
 
-void IRGeneratorVisitor::addOPInstruction(ASTNode* node, string workingRegister, string memLocation) {
-	for( auto child : node->children){		
-		node->instructionSize += child->instructionSize;
-	}
+void IRGeneratorVisitor::addOPInstruction(ASTNode* node, string target, string lReg, string rReg) {
 
 	if (node->str == "+") {
-		node->addInstruction(make_shared<AddInstr>(workingRegister, memLocation, node->str));
+		node->addInstruction(make_shared<AddInstr>(target, lReg, rReg));
 	}
 	else if (node->str == "-") {
-		node->addInstruction(make_shared<SubInstr>(workingRegister, memLocation, node->str));
+		node->addInstruction(make_shared<SubInstr>(target, lReg, rReg));
 	}
 	else if (node->str == "*") {
-		node->addInstruction(make_shared<MultInstr>(workingRegister, memLocation, node->str));
+		node->addInstruction(make_shared<MultInstr>(target, lReg, rReg));
 	}
 	else if (node->str == "/") {
-		node->addInstruction(make_shared<DivInstr>(workingRegister, memLocation, node->str));
+		node->addInstruction(make_shared<DivInstr>(target, lReg, rReg));
 	}
 	else if (node->str == ">") {
-		node->addInstruction(make_shared<GTInstr>(workingRegister, memLocation, node->str));
+		node->addInstruction(make_shared<GTInstr>(target, lReg, rReg));
 	}
 	else if (node->str == ">=") {
-		node->addInstruction(make_shared<GTEqInstr>(workingRegister, memLocation, node->str));
+		node->addInstruction(make_shared<GTEqInstr>(target, lReg, rReg));
 	}
 	else if (node->str == "==") {
-		node->addInstruction(make_shared<EqualInstr>(workingRegister, memLocation, node->str));
+		node->addInstruction(make_shared<EqualInstr>(target, lReg, rReg));
 	}
 	else if (node->str == "<") {
-		node->addInstruction(make_shared<LTInstr>(workingRegister, memLocation, node->str));
+		node->addInstruction(make_shared<LTInstr>(target, lReg, rReg));
 	}
 	else if (node->str == "<=") {
-		node->addInstruction(make_shared<LTEqInstr>(workingRegister, memLocation, node->str));
+		node->addInstruction(make_shared<LTEqInstr>(target, lReg, rReg));
 	}
 	else if (node->str == "<<") {
-		node->addInstruction(make_shared<ShiftLInstr>(workingRegister, memLocation, node->str));
+		node->addInstruction(make_shared<ShiftLInstr>(target, lReg, rReg));
 	}
 	else if (node->str == ">>") {
-		node->addInstruction(make_shared<ShiftRInstr>(workingRegister, memLocation, node->str));
+		node->addInstruction(make_shared<ShiftRInstr>(target, lReg, rReg));
 	} else {
-		node->addInstruction(make_shared<CalcInstr>(workingRegister, memLocation, node->str));
+		node->addInstruction(make_shared<CalcInstr>(target, "", node->str));
 	}
 
+}
+
+void IRGeneratorVisitor::unaryInstruction(ASTNode* node, string target, string lReg) {
+
+	/*if (node->str == "+") {
+		node->addInstruction(make_shared<AddInstr>(target, lReg, rReg));
+	}
+	else if (node->str == "-") {
+		node->addInstruction(make_shared<SubInstr>(target, lReg, rReg));
+	}
+	else if (node->str == "*") {
+		node->addInstruction(make_shared<MultInstr>(target, lReg, rReg));
+	}
+	else if (node->str == "/") {
+		node->addInstruction(make_shared<DivInstr>(target, lReg, rReg));
+	}
+	else if (node->str == ">") {
+		node->addInstruction(make_shared<GTInstr>(target, lReg, rReg));
+	}
+	else if (node->str == ">=") {
+		node->addInstruction(make_shared<GTEqInstr>(target, lReg, rReg));
+	}
+	else if (node->str == "==") {
+		node->addInstruction(make_shared<EqualInstr>(target, lReg, rReg));
+	}
+	else if (node->str == "<") {
+		node->addInstruction(make_shared<LTInstr>(target, lReg, rReg));
+	}
+	else if (node->str == "<=") {
+		node->addInstruction(make_shared<LTEqInstr>(target, lReg, rReg));
+	}
+	else if (node->str == "<<") {
+		node->addInstruction(make_shared<ShiftLInstr>(target, lReg, rReg));
+	}
+	else if (node->str == ">>") {
+		node->addInstruction(make_shared<ShiftRInstr>(target, lReg, rReg));
+	} else {
+		cout << "Does this happen?\n";
+		node->addInstruction(make_shared<CalcInstr>(target, "", node->str));
+	}*/
 }

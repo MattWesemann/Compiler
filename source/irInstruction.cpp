@@ -2,7 +2,7 @@
 
 using namespace std;
 
-IRInstruction::IRInstruction(string operand1, string operand2, string comment) : Instruction(operand1, operand2, comment) {}
+IRInstruction::IRInstruction(string operand1, string operand2, string operand3, string comment) : Instruction(operand1, operand2, operand3, comment) {}
 
 void IRInstruction::emitBinary(char* bytes, size_t& offset, size_t len, size_t dataOffset){
 	(void) bytes;
