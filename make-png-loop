@@ -60,6 +60,8 @@ for file in ${1}* ; do
         mv ${file}.asm ./output/${shortFile}
     fi
 
+    cp ${file} ./output/${shortFile}
+
     cd ./output/${shortFile}
     
     if [[ -f ${shortFile}.a ]] ; then

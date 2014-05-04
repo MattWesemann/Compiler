@@ -111,6 +111,7 @@ add_executable(frontend
 	source/jit.cpp
 	source/irTox86Visitor.cpp
 	source/x86EmitterVisitor.cpp
+        source/offsetVisitor.cpp
 	${BIN}/flex-bison-autogen/language_0_scanner.cpp
 	${BIN}/flex-bison-autogen/language_0_parser.cpp
 
@@ -135,6 +136,7 @@ add_executable(frontend
 	include/jit.h
 	include/irTox86Visitor.h
 	include/x86EmitterVisitor.h
+        include/offsetVisitor.h
 
 	# Flex/Bison files.
 	flex-bison/language_0.l
