@@ -25,6 +25,7 @@
 %token <str>        unaryPreOperatorKeyword
 %token <str>        unaryPostOperatorKeyword
 %token <str>        assignmentOperatorKeyword
+%token <str>        starOperatorKeyword
 %token <str>        binaryOperatorKeyword0
 %token <str>        binaryOperatorKeyword1
 %token <str>        binaryOperatorKeyword2
@@ -44,11 +45,14 @@
 %token <str>        whileKeyword
 %token <str>        forKeyword
 %token <str>        doKeyword
+%token <str>        structKeyword
 
 %type <node>        Assignment
 %type <node>        Block
 %type <node>        Declaration
+%type <node>        PointerDeclaration
 %type <node>        Declarations
+%type <node>        DeclarationsList
 %type <node>        DeclList
 %type <node>        ElseStatement
 %type <node>        Expression
@@ -73,12 +77,20 @@
 %type <node>        Statement
 %type <node>        Statements
 %type <node>        Type
+%type <node>        PointerType
+%type <node>        Qualifiers
 %type <node>        Value
 %type <node>        WhileStatement
 %type <node>        DoWhileStatement
 %type <node>        ForStatement
+%type <node>        StructDefinition
+%type <node>        Function
+%type <node>        FunctionDecl
+%type <node>        FunctionImpl
 %type <node>        ForExpression
 %type <node>        ForAssignment
+%type <node>        ArgList
+%type <node>        ArgListInternal
 %type <str>         assignmentOperator
 %type <str>         unaryPreOperator
 
@@ -146,9 +158,40 @@ Statement:
 | ReturnStatement {
     $$ = $1;
   }
+| StructDefinition {
+    $$ = $1;
+  }
+| FunctionDecl {
+    $$ = $1;
+  }
+| FunctionImpl {
+    $$ = $1;
+  }
 | ';' {
     $$ = std::make_shared<ExpressionNode>();
     $$->lineno = yyget_lineno();
+  }
+;
+
+StructDefinition:
+  structKeyword '{' DeclarationsList '}' identifier ';' {
+    $$ = std::make_shared<StructNode>($5);
+    $$->lineno = yyget_lineno();
+	$$->addChild($3);
+  }
+| structKeyword '{' '}' identifier ';' {
+    $$ = std::make_shared<StructNode>($4);
+    $$->lineno = yyget_lineno();   
+  }
+;
+
+DeclarationsList:
+  DeclarationsList Declarations ';' {
+    $$ = $1;
+	$$->addSibling($2);
+  }
+| Declarations ';' {
+    $$ = $1;
   }
 ;
 
@@ -156,21 +199,36 @@ Declarations:
   Type DeclList {
     $$ = std::make_shared<DeclarationNode>();
     $$->lineno = yyget_lineno();
-    $$->addChild($1);
-    for(auto& child: $2->children){
-      $$->addChild(child);
-    }
+	$$->addAsFirstChild($1->clone());
+	for(const auto& child : $2->getSiblings()){
+		auto temp = std::make_shared<DeclarationNode>();
+		temp->lineno = yyget_lineno();
+	  	temp->addAsFirstChild($1->clone());
+		temp->addChild(child);
+		$$->addSibling(temp);
+	}
+	$2->siblings.clear();
+	$$->addChild($2);
   }
 ;
 
 DeclList:
-  Declaration {
-    $$ = std::make_shared<DeclarationNode>();
-    $$->lineno = yyget_lineno();
-    $$->addChild($1);
+  PointerDeclaration {
+    $$ = $1;
   }
-| DeclList ',' Declaration {
-    $$->addChild($3);
+| DeclList ',' PointerDeclaration {
+    $$ = $1;
+	$$->addSibling($3);
+  }
+;
+
+PointerDeclaration:
+  PointerType Declaration {
+    $$ = $2;
+	$$->addChild($1);
+  }
+| Declaration {
+    $$ = $1;
   }
 ;
 
@@ -185,12 +243,40 @@ Declaration:
 ;
 
 Type:
-  constQualifier Type {
-    $$ = $2;
-    $$->makeConst();
+  Qualifiers identifier {
+    $$ = std::make_shared<TypeNode>($2);
+    $$->lineno = yyget_lineno();
+	$$->addChild($1);
   }
 | identifier {
     $$ = std::make_shared<TypeNode>($1);
+    $$->lineno = yyget_lineno();
+  }
+;
+
+PointerType:
+  starOperatorKeyword {
+    $$ = std::make_shared<PointerNode>();
+    $$->lineno = yyget_lineno();
+  }
+| PointerType starOperatorKeyword {
+    auto temp = std::make_shared<PointerNode>();
+    temp->lineno = yyget_lineno(); 
+	$$ = $1;
+    $$->addSibling(temp);
+  }
+| PointerType Qualifiers {
+	$$ = $1;
+    $$->addSibling($2);
+  }
+| Qualifiers {
+    $$ = $1;
+  }
+;
+
+Qualifiers:
+  constQualifier {
+    $$ = std::make_shared<ConstNode>();
     $$->lineno = yyget_lineno();
   }
 ;
@@ -208,7 +294,7 @@ Block:
   '{' Statements '}' {
     $$ = $2;
   }
-  | '{' '}' {
+| '{' '}' {
     $$ = std::make_shared<BlockNode>();
     $$->lineno = yyget_lineno();
   }
@@ -386,6 +472,65 @@ PrimaryTerm:
 | Value {
     $$ = $1;
   }
+| Function {
+    $$ = $1;
+  }
+;
+
+ArgList:
+  ArgListInternal {
+    $$ = $1;
+  }
+| ArgListInternal ',' '.' '.' '.' {
+    $$ = $1;
+    auto temp = std::make_shared<SymbolNode>("...");
+    temp->lineno = yyget_lineno();  
+	$$->addSibling(temp);
+  }
+| '.' '.' '.' {
+    $$ = std::make_shared<SymbolNode>("...");
+    $$->lineno = yyget_lineno();  
+  }
+;
+
+ArgListInternal:
+  Type PointerDeclaration {
+    $$ = $2;
+    $$->addAsFirstChild($1);
+  }
+| Type {
+    $$ = $1;
+  }
+| Type PointerType {
+    $$ = $1;
+	$1->addChild($2);
+  }
+| ArgListInternal ',' Type PointerDeclaration {
+    $$ = $1;
+    $$->addSibling($3);
+	$3->addChild($4);
+  }
+| ArgListInternal ',' Type {
+    $$ = $1;
+    $$->addSibling($3);
+  }
+| ArgListInternal ',' Type PointerType {
+    $$ = $1;
+    $$->addSibling($3);
+	$3->addChild($4);
+  }
+; 
+
+Function:
+  identifier '(' ')' {
+    $$ = std::make_shared<FunctionNode>($1);
+    $$->lineno = yyget_lineno();
+  }
+| identifier '(' ArgList ')' {
+    $$ = std::make_shared<FunctionNode>($1);
+    $$->lineno = yyget_lineno();
+	$$->addChild($3);
+  }
 ;
 
 // we can't match all in one regex so we must do it this way
@@ -402,8 +547,8 @@ unaryPreOperator:
 | binaryOperatorKeyword5 {
     $$ = $1;
   }
-| '*' {
-    $$ = std::string("*");
+| starOperatorKeyword {
+    $$ = $1;
   }
 ;
 
@@ -524,6 +669,31 @@ ReturnStatement:
 | returnKeyword ';' {
     $$ = std::make_shared<ReturnNode>();
     $$->lineno = yyget_lineno();
+  }
+;
+
+FunctionDecl:
+  Type Function ';' {
+    $$ = std::make_shared<FunctionDeclNode>();
+    $$->lineno = yyget_lineno();
+	$$->addChild($1);
+	$$->addChild($2);
+  }
+;
+
+FunctionImpl:
+  Type Function '{' Statements '}' {
+    $$ = std::make_shared<FunctionNode>();
+    $$->lineno = yyget_lineno();
+	$$->addChild($1);
+	$$->addChild($2);
+	$$->addChild($4);
+  }
+| Type Function '{' '}' {
+    $$ = std::make_shared<FunctionNode>();
+    $$->lineno = yyget_lineno();
+	$$->addChild($1);
+	$$->addChild($2);
   }
 ;
 

@@ -61,8 +61,7 @@ int main(int argc, char* argv[]) {
 
 	SymbolVisitor symVisit;
 
-	if (root != nullptr)
-		((Visitor*) &symVisit)->visit(root.get());
+    //((Visitor*) &symVisit)->visit(root);
 
 	if (symVisit.hadError(cerrFile.get())){
 		ret = 1;
@@ -70,8 +69,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	ConstVisitor constvisit;
-	if (root != nullptr)
-		((Visitor*) &constvisit)->visit(root.get());
+	//((Visitor*) &constvisit)->visit(root);
 
 	if (constvisit.hadError(cerrFile.get())){
 		ret = 1;
@@ -82,22 +80,22 @@ int main(int argc, char* argv[]) {
 	root->print_tree(outA);
 
 	RegisterVisitor regVisit;
-	((Visitor*) &regVisit)->visit(root);
+	//((Visitor*) &regVisit)->visit(root);
 
 	IRGeneratorVisitor irGenVisit;
-	((Visitor*) &irGenVisit)->visit(root);
+	//((Visitor*) &irGenVisit)->visit(root);
 
 	OffsetVisitor offvisit(root->instructionSize*4);  // all instructions are 4 bytes
-	((Visitor*) &offvisit)->visit(root);
+	//((Visitor*) &offvisit)->visit(root);
 
 	IRPrinterVisitor irVisit(&irOut);
-	((Visitor*) &irVisit)->visit(root);
+	//((Visitor*) &irVisit)->visit(root);
 
 	IRTox86Visitor asmVisit;
-	((Visitor*) &asmVisit)->visit(root);
+	//((Visitor*) &asmVisit)->visit(root);
 
 	IRPrinterVisitor asmPrintVisit(&asmOut);
-	((Visitor*) &asmPrintVisit)->visit(root);
+	//((Visitor*) &asmPrintVisit)->visit(root);
 
 	x86Jitter jitter;
 
@@ -106,7 +104,7 @@ int main(int argc, char* argv[]) {
 	x86EmitterVisitor x86Visit(buf, jitter.getSize(), (size_t) ((char*) buf + jitter.getDataOffset()));
 	((Visitor*) &x86Visit)->visit(root);
 
-	auto fn = jitter.getFunction();
+	//auto fn = jitter.getFunction();
 
 	//int rett = (int) (size_t) fn();
 

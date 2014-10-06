@@ -4,9 +4,10 @@
 	#include "language_0_parser.hpp"
 %}
 
+StarOp          "*"
 PreUnaryOp      "!"|"~"
 PostUnaryOp     "++"|"--"
-BinaryOp0       "*"|"/"|"%"
+BinaryOp0       "/"|"%"
 BinaryOp1       "+"|"-"
 BinaryOp2       ">>"|"<<"
 BinaryOp3       "<"|">"|"<="|">="
@@ -52,7 +53,9 @@ AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 "do" {
 	return doKeyword;
 }
-
+"struct" {
+	return structKeyword;
+}
 
 [0-9]+ {
 	yylval.integer = atoi(yytext);
@@ -69,6 +72,11 @@ AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 	return identifier;
 }
 
+{StarOp} {
+	yylval.str = yytext;
+	return starOperatorKeyword;
+}
+
 {PreUnaryOp} {
 	yylval.str = yytext;
 	return unaryPreOperatorKeyword;
@@ -79,7 +87,7 @@ AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 	return unaryPostOperatorKeyword;
 }
 
-{BinaryOp0} {
+{BinaryOp0}|{StarOp} {
 	yylval.str = yytext;
 	return binaryOperatorKeyword0;
 }

@@ -27,6 +27,12 @@
     NODE_MACRO(While)				 \
     NODE_MACRO(For)					 \
     NODE_MACRO(DoWhile)				 \
+    NODE_MACRO(Struct)				 \
+    NODE_MACRO(Qualifiers)		     \
+    NODE_MACRO(Function)		     \
+    NODE_MACRO(FunctionDecl)	     \
+    NODE_MACRO(Pointer)	             \
+    NODE_MACRO(Const)	             \
 
 class Visitor;
 
@@ -42,8 +48,12 @@ public:
 	// This guarantees a unique number for every node created,
 	static int nodeCount;
 
-	void addChild(std::shared_ptr<ASTNode> node);
+    void addChild(std::shared_ptr<ASTNode> node);
+    void addAsFirstChild(std::shared_ptr<ASTNode> node);
+    void addSibling(std::shared_ptr<ASTNode> node);
 	void addInstruction(std::shared_ptr<Instruction> instr);
+
+    std::vector<std::shared_ptr<ASTNode>>& getSiblings();
 
 	void printInstructions(std::ostream& out);
 
@@ -66,10 +76,13 @@ public:
 	// TODO: More flexibility in type stored.
 	std::string str;
 
-	// TODO: Children should know about their parent.
-	std::vector<std::shared_ptr<ASTNode>> children;
+    std::vector<std::shared_ptr<ASTNode>> children;
+    std::vector<std::shared_ptr<ASTNode>> siblings;
 	std::vector<std::shared_ptr<Instruction>> instructions;
 	size_t instructionSize;
+
+    // non-owning
+    ASTNode* parent;
 
 	ASTNode(std::string str = "")
 		: isConst(false), str(str) {
@@ -77,6 +90,8 @@ public:
 		uniqueID = nodeCount;
 		regCount = 0;
 		instructionSize = 0;
+        parent = nullptr;
+        isPrefix = false;
 	}
 
 	// Modifies a vector to add copies of all children, grand children, etc.
@@ -92,6 +107,7 @@ public:
 	virtual void accept(Visitor* visitor) = 0;
 	virtual std::string to_string() const = 0;
 	virtual ASTNode::NodeType to_type() = 0;
+    virtual std::shared_ptr<ASTNode> clone() = 0;
 };
 
 std::string to_string(const ASTNode* node);
@@ -102,13 +118,22 @@ bool operator==(const ASTNode& a, const ASTNode& b);
 	class name ## Node : public ASTNode {                   \
 		public:                                             \
 		name ## Node(std::string str = "") : ASTNode(str){} \
-		void accept(Visitor* visitor);                      \
-		std::string to_string() const { 					\
+		void accept(Visitor* visitor) override;             \
+		std::string to_string() const override { 			\
 			return #name;								    \
 		}													\
-		ASTNode::NodeType to_type() {                       \
+		ASTNode::NodeType to_type() override {              \
 			return ASTNode::NodeType::name;                 \
 		}                                                   \
+        std::shared_ptr<ASTNode> clone() override {         \
+            auto node = std::make_shared<name ## Node>(str);\
+            node->lineno = lineno;                          \
+            node->isPrefix = isPrefix;                      \
+            for(const auto& child : children){              \
+                node->addChild(child->clone());             \
+            }                                               \
+            return node;                                    \
+        }                                                   \
 	};
 
 PERFORM_NODES(NODEDEFINE)

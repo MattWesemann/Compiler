@@ -9,13 +9,42 @@ using namespace std;
 
 int ASTNode::nodeCount = 0;
 
-void ASTNode::addChild(std::shared_ptr<ASTNode> node) {
+void ASTNode::addChild(shared_ptr<ASTNode> node) {
+    node->parent = this;
 	children.push_back(node);
+    for (auto child : node->siblings)
+        children.push_back(child);
+    node->siblings.clear();
+}
+
+void ASTNode::addAsFirstChild(shared_ptr<ASTNode> node){
+    node->parent = this;
+    // add in reverse order since we want to preserve it at the beginning
+    for (size_t i = node->siblings.size() - 1; i < node->siblings.size(); --i){
+        children.insert(children.begin(), node->siblings[i]);
+    }
+    children.insert(children.begin(), node);
+    node->siblings.clear();
+}
+
+void ASTNode::addSibling(shared_ptr<ASTNode> node) {
+    if (parent){
+        parent->addChild(node);
+    }
+    else {
+        siblings.push_back(node);
+    }
 }
 
 void ASTNode::addInstruction(shared_ptr<Instruction> instr){
 	instructions.push_back(instr);
 	instructionSize+=1;
+}
+
+vector<shared_ptr<ASTNode>>& ASTNode::getSiblings(){
+    if (parent)
+        return parent->children;
+    return siblings;
 }
 
 void ASTNode::printInstructions(ostream& out){
@@ -83,9 +112,9 @@ bool operator==(const ASTNode& a, const ASTNode& b) {
 	return a.uniqueID == b.uniqueID;
 }
 
-#define NODEIMPL(name)                                  \
-	void name ## Node ::accept(Visitor* visitor) {      \
-		visitor->visit(this);                           \
-	}                                                   \
+#define NODEIMPL(name)                             \
+	void name ## Node ::accept(Visitor* visitor) { \
+		visitor->visit(this);                      \
+	}                                              \
 
 PERFORM_NODES(NODEIMPL)
