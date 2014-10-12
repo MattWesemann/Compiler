@@ -1,12 +1,13 @@
 %{
   #include "ast.h"
+  #include "Compiler.h"
   #include <string>
-
+  
   // From flex
   int yylex();
   int yyget_lineno();
 
-  void yyerror(std::shared_ptr<ASTNode>& root, const char*);
+  void yyerror(Compiler* compiler, const char*);
 %}
 
 // Debugging flags.
@@ -17,7 +18,7 @@
 %define parse.lac full
 
 // This adds additonal arguments to yyparse.
-%parse-param {std::shared_ptr<ASTNode>& root}
+%parse-param {Compiler* compiler}
 
 %token <integer>    integer
 %token <real>       real
@@ -46,6 +47,7 @@
 %token <str>        forKeyword
 %token <str>        doKeyword
 %token <str>        structKeyword
+%token <str>        typedefKeyword
 
 %type <node>        Assignment
 %type <node>        Block
@@ -84,6 +86,7 @@
 %type <node>        DoWhileStatement
 %type <node>        ForStatement
 %type <node>        StructDefinition
+%type <node>        Typedef
 %type <node>        Function
 %type <node>        FunctionDecl
 %type <node>        FunctionImpl
@@ -97,6 +100,7 @@
 %code requires {
   #include <memory>
   #include "ast.h"
+  #include "Compiler.h"
 
   // Structs, unlike unions, allow class members.
   struct YYSTYPE {
@@ -115,10 +119,10 @@
 
 Program:
   Statements {
-    root = $$ = std::make_shared<ProgramNode>();
-    root->lineno = $1->lineno;
+    compiler->root = $$ = std::make_shared<ProgramNode>();
+    compiler->root->lineno = $1->lineno;
 	// slightly hackish but lets steal their children
-    root->children = std::move($1->children);
+    compiler->root->children = std::move($1->children);
   }
 ;
 
@@ -167,21 +171,72 @@ Statement:
 | FunctionImpl {
     $$ = $1;
   }
+| Typedef {
+    $$ = $1;
+  }
 | ';' {
     $$ = std::make_shared<ExpressionNode>();
     $$->lineno = yyget_lineno();
   }
 ;
 
+Typedef:
+  typedefKeyword Declarations ';' {
+    $$ = $2;
+  }
+| typedefKeyword StructDefinition {
+    $$ = $2;
+  }
+;
+
 StructDefinition:
-  structKeyword '{' DeclarationsList '}' identifier ';' {
-    $$ = std::make_shared<StructNode>($5);
+  structKeyword '{' DeclarationsList '}' DeclList ';' {
+    $$ = std::make_shared<StructNode>();
     $$->lineno = yyget_lineno();
+	$$ = $5;
 	$$->addChild($3);
   }
-| structKeyword '{' '}' identifier ';' {
-    $$ = std::make_shared<StructNode>($4);
-    $$->lineno = yyget_lineno();   
+| structKeyword identifier '{' DeclarationsList '}' DeclList ';' {
+    $$ = std::make_shared<StructNode>();
+    $$->lineno = yyget_lineno();
+	$$ = $6;
+	$$->addChild($4);
+  }
+| structKeyword '{' DeclarationsList '}' ';' {
+    $$ = std::make_shared<StructNode>();
+    $$->lineno = yyget_lineno();
+	//$$ = $5;
+	//$$->addChild($3);
+  }
+| structKeyword identifier '{' DeclarationsList '}' ';' {
+    $$ = std::make_shared<StructNode>();
+    $$->lineno = yyget_lineno();
+	//$$ = $6;
+	//$$->addChild($4);
+  }
+| structKeyword '{' '}' DeclList ';' {
+    $$ = std::make_shared<StructNode>();
+    $$->lineno = yyget_lineno();
+	//$$ = $5;
+	//$$->addChild($3);
+  }
+| structKeyword identifier '{' '}' DeclList ';' {
+    $$ = std::make_shared<StructNode>();
+    $$->lineno = yyget_lineno();
+	//$$ = $6;
+	//$$->addChild($4);
+  }
+| structKeyword '{' '}' ';' {
+    $$ = std::make_shared<StructNode>();
+    $$->lineno = yyget_lineno();
+	//$$ = $5;
+	//$$->addChild($3);
+  }
+| structKeyword identifier '{' '}' ';' {
+    $$ = std::make_shared<StructNode>();
+    $$->lineno = yyget_lineno();
+	//$$ = $6;
+	//$$->addChild($4);
   }
 ;
 
@@ -240,6 +295,10 @@ Declaration:
     $$ = std::make_shared<SymbolNode>($1);
     $$->lineno = yyget_lineno();
   }
+| identifier '[' integer ']' {
+    $$ = std::make_shared<SymbolNode>($1);
+    $$->lineno = yyget_lineno();
+  }
 ;
 
 Type:
@@ -248,8 +307,17 @@ Type:
     $$->lineno = yyget_lineno();
 	$$->addChild($1);
   }
+| Qualifiers structKeyword identifier {
+    $$ = std::make_shared<TypeNode>($3);
+    $$->lineno = yyget_lineno();
+	$$->addChild($1);
+  }
 | identifier {
     $$ = std::make_shared<TypeNode>($1);
+    $$->lineno = yyget_lineno();
+  }
+| structKeyword identifier {
+    $$ = std::make_shared<TypeNode>($2);
     $$->lineno = yyget_lineno();
   }
 ;
@@ -462,6 +530,18 @@ TermPostUnary:
     $$->lineno = yyget_lineno();
     $$->isPrefix = false;
     $$->addChild($1);
+  }
+| PrimaryTerm '[' Expression ']' {
+    $$ = std::make_shared<ExpressionNode>();
+    $$->lineno = yyget_lineno();
+  }
+| PrimaryTerm '-' '>' identifier {
+    $$ = std::make_shared<ExpressionNode>();
+    $$->lineno = yyget_lineno(); 
+  }
+| PrimaryTerm '.' identifier {
+    $$ = std::make_shared<ExpressionNode>();
+    $$->lineno = yyget_lineno();  
   }
 ;
 
@@ -699,8 +779,6 @@ FunctionImpl:
 
 %%
 
-void handleError(const char* msg, int lineno);
-void yyerror(std::shared_ptr<ASTNode>& root, const char* msg) {
-	(void) root;
-    handleError(msg, yyget_lineno());
+void yyerror(Compiler* compiler, const char* msg) {
+    compiler->handleError(msg, yyget_lineno());
 }

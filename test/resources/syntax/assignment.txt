@@ -1,0 +1,4 @@
+int xx = 0;
+int ss = xx, e = 0;
+int qq, er = xx;
+e += 1;

@@ -33,6 +33,7 @@
     NODE_MACRO(FunctionDecl)	     \
     NODE_MACRO(Pointer)	             \
     NODE_MACRO(Const)	             \
+    NODE_MACRO(Typedef)	             \
 
 class Visitor;
 

@@ -12,16 +12,10 @@
 #include "x86EmitterVisitor.h"
 #include "jit.h"
 #include "offsetVisitor.h"
+#include "Compiler.h"
+#include "utils.h"
 
 using namespace std;
-
-shared_ptr<ofstream> cerrFile;
-
-int yyparse(shared_ptr<ASTNode>& root);
-
-void handleError(const char* msg, int lineno){
-	*cerrFile << "[Error] " << msg << " on line " << lineno << endl;
-}
 
 int main(int argc, char* argv[]) {
 
@@ -32,77 +26,84 @@ int main(int argc, char* argv[]) {
 
 	string outname(argv[1]);
 
-	cerrFile = make_shared<ofstream>(outname + ".err");
+    ofstream cerrFile(outname + ".err");
 	ofstream outRaw(outname + ".p");
 	ofstream outA(outname + ".a");
 	ofstream irOut(outname + ".ir");
 	ofstream asmOut(outname + ".asm");
 
-	shared_ptr<ASTNode> root;
+    std::vector<char> bytes;
+    ReadAllBytes(cin, bytes);
+    
+    //yydebug = 1;
 
-	//yydebug = 1;
-	int ret = 0;
-	switch (ret = yyparse(root)) {
-	case 0:
+    Compiler compiler;
+    auto error = compiler.Compile(bytes.data(), bytes.size());
+
+    cerrFile << compiler.GetError() << endl;
+
+    int ret = error;
+    switch (error) {
+    case ErrorNone:
 		// Silence is golden.
 		break;
-	case 1:
-		*cerrFile << "Syntax error!\n";
+    case ErrorSyntax:
+		cerrFile << "Syntax error!\n";
 		return ret;
-	case 2:
-		*cerrFile << "Memory error!\n";
+    case ErrorMemory:
+		cerrFile << "Memory error!\n";
 		return ret;
 	default:
-		*cerrFile << "Unknown error.\n";
+		cerrFile << "Unknown error.\n";
 		return ret;
 	}
 
-	root->print_tree(outRaw);
+    compiler.root->print_tree(outRaw);
 
 	SymbolVisitor symVisit;
 
-    //((Visitor*) &symVisit)->visit(root);
+    //((Visitor*) &symVisit)->visit(compiler.root);
 
-	if (symVisit.hadError(cerrFile.get())){
+	if (symVisit.hadError(&cerrFile)){
 		ret = 1;
 		return ret;
 	}
 
 	ConstVisitor constvisit;
-	//((Visitor*) &constvisit)->visit(root);
+	//((Visitor*) &constvisit)->visit(compiler.root);
 
-	if (constvisit.hadError(cerrFile.get())){
+	if (constvisit.hadError(&cerrFile)){
 		ret = 1;
 		return ret;
 	}
 		
 	// now that AST is done print finished tree
-	root->print_tree(outA);
+    compiler.root->print_tree(outA);
 
 	RegisterVisitor regVisit;
-	//((Visitor*) &regVisit)->visit(root);
+	//((Visitor*) &regVisit)->visit(compiler.root);
 
 	IRGeneratorVisitor irGenVisit;
-	//((Visitor*) &irGenVisit)->visit(root);
+	//((Visitor*) &irGenVisit)->visit(compiler.root);
 
-	OffsetVisitor offvisit(root->instructionSize*4);  // all instructions are 4 bytes
-	//((Visitor*) &offvisit)->visit(root);
+    OffsetVisitor offvisit(compiler.root->instructionSize * 4);  // all instructions are 4 bytes
+	//((Visitor*) &offvisit)->visit(compiler.root);
 
 	IRPrinterVisitor irVisit(&irOut);
-	//((Visitor*) &irVisit)->visit(root);
+	//((Visitor*) &irVisit)->visit(compiler.root);
 
 	IRTox86Visitor asmVisit;
-	//((Visitor*) &asmVisit)->visit(root);
+	//((Visitor*) &asmVisit)->visit(compiler.root);
 
 	IRPrinterVisitor asmPrintVisit(&asmOut);
-	//((Visitor*) &asmPrintVisit)->visit(root);
+	//((Visitor*) &asmPrintVisit)->visit(compiler.root);
 
 	x86Jitter jitter;
 
 	void* buf = jitter.allocateMemory(4 * 1024, 4 * 1024);
 
 	x86EmitterVisitor x86Visit(buf, jitter.getSize(), (size_t) ((char*) buf + jitter.getDataOffset()));
-	((Visitor*) &x86Visit)->visit(root);
+    ((Visitor*) &x86Visit)->visit(compiler.root);
 
 	//auto fn = jitter.getFunction();
 

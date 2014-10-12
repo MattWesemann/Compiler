@@ -1,0 +1,21 @@
+struct aa {
+
+};
+
+struct aa {
+
+} cc;
+
+struct {
+
+} cc;
+
+struct {
+  int w, **a;
+  char ee[100], q;
+  struct aa qq;
+};
+
+typedef struct {
+
+} qwe, *pqwe;

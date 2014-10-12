@@ -8,9 +8,9 @@ StarOp          "*"
 PreUnaryOp      "!"|"~"
 PostUnaryOp     "++"|"--"
 BinaryOp0       "/"|"%"
-BinaryOp1       "+"|"-"
+BinaryOp1       "+"
 BinaryOp2       ">>"|"<<"
-BinaryOp3       "<"|">"|"<="|">="
+BinaryOp3       "<"|"<="|">="
 BinaryOp4       "=="|"!="
 BinaryOp5       "&"
 BinaryOp6       "^"
@@ -56,6 +56,9 @@ AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 "struct" {
 	return structKeyword;
 }
+"typedef" {
+	return typedefKeyword;
+}
 
 [0-9]+ {
 	yylval.integer = atoi(yytext);
@@ -92,7 +95,7 @@ AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 	return binaryOperatorKeyword0;
 }
 
-{BinaryOp1} {
+{BinaryOp1}|'-' {
 	yylval.str = yytext;
 	return binaryOperatorKeyword1;
 }
@@ -102,7 +105,7 @@ AssignmentOp    "+="|"-="|"*="|"/="|"%="|"|="|"&="|"^="|"<<="|">>="
 	return binaryOperatorKeyword2;
 }
 
-{BinaryOp3} {
+{BinaryOp3}|'>' {
 	yylval.str = yytext;
 	return binaryOperatorKeyword3;
 }

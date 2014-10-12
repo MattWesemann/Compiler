@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{247C294C-CBE0-4210-A524-20F6E535D06E}</ProjectGuid>
+    <RootNamespace>Backend</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IntDir>backend\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:/src/Compiler/include;C:/src/Compiler/build/flex-bison-autogen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>EXPORTING;_WINDLL;WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\build\flex-bison-autogen\language_0_parser.hpp" />
+    <ClInclude Include="..\include\ast.h" />
+    <ClInclude Include="..\include\attributes.h" />
+    <ClInclude Include="..\include\Compiler.h" />
+    <ClInclude Include="..\include\constVisitor.h" />
+    <ClInclude Include="..\include\IAST.h" />
+    <ClInclude Include="..\include\ICompiler.h" />
+    <ClInclude Include="..\include\instruction.h" />
+    <ClInclude Include="..\include\IRGenerator.h" />
+    <ClInclude Include="..\include\irInstruction.h" />
+    <ClInclude Include="..\include\irPrinter.h" />
+    <ClInclude Include="..\include\irTox86Visitor.h" />
+    <ClInclude Include="..\include\jit.h" />
+    <ClInclude Include="..\include\name.h" />
+    <ClInclude Include="..\include\namespace.h" />
+    <ClInclude Include="..\include\offsetVisitor.h" />
+    <ClInclude Include="..\include\registerVisitor.h" />
+    <ClInclude Include="..\include\scope.h" />
+    <ClInclude Include="..\include\symbol.h" />
+    <ClInclude Include="..\include\symbolTable.h" />
+    <ClInclude Include="..\include\symbolVisitor.h" />
+    <ClInclude Include="..\include\utils.h" />
+    <ClInclude Include="..\include\visitor.h" />
+    <ClInclude Include="..\include\x86EmitterVisitor.h" />
+    <ClInclude Include="..\include\x86Instruction.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\build\flex-bison-autogen\language_0_parser.cpp">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\build\flex-bison-autogen\language_0_scanner.cpp">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\source\ast.cpp" />
+    <ClCompile Include="..\source\attributes.cpp" />
+    <ClCompile Include="..\source\Compiler.cpp" />
+    <ClCompile Include="..\source\constVisitor.cpp" />
+    <ClCompile Include="..\source\instruction.cpp" />
+    <ClCompile Include="..\source\IRGenerator.cpp" />
+    <ClCompile Include="..\source\irInstruction.cpp" />
+    <ClCompile Include="..\source\irPrinter.cpp" />
+    <ClCompile Include="..\source\irTox86Visitor.cpp" />
+    <ClCompile Include="..\source\jit.cpp" />
+    <ClCompile Include="..\source\name.cpp" />
+    <ClCompile Include="..\source\namespace.cpp" />
+    <ClCompile Include="..\source\offsetVisitor.cpp" />
+    <ClCompile Include="..\source\registerVisitor.cpp" />
+    <ClCompile Include="..\source\scope.cpp" />
+    <ClCompile Include="..\source\symbol.cpp" />
+    <ClCompile Include="..\source\symbolTable.cpp" />
+    <ClCompile Include="..\source\symbolVisitor.cpp" />
+    <ClCompile Include="..\source\utils.cpp" />
+    <ClCompile Include="..\source\visitor.cpp" />
+    <ClCompile Include="..\source\x86EmitterVisitor.cpp" />
+    <ClCompile Include="..\source\x86Instruction.cpp" />
+    <None Include="..\flex-bison\language_0.l" />
+    <None Include="..\flex-bison\language_0.y" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\build\CMakeFiles\2bd1932336e1c833c04ef5881adf3dc7\language_0_parser.cpp.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">[BISON][PARSER] Building parser with bison 2.7</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+cd C:\src\Compiler
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\win_flex_bison\bison.exe -v -d -o C:/src/Compiler/build/flex-bison-autogen/language_0_parser.cpp flex-bison/language_0.y
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/src/Compiler/build/CMakeFiles/2bd1932336e1c833c04ef5881adf3dc7/language_0_parser.cpp.rule;C:\src\Compiler\flex-bison\language_0.y;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\src\Compiler\build\flex-bison-autogen\language_0_parser.cpp;C:\src\Compiler\build\flex-bison-autogen\language_0_parser.hpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\build\CMakeFiles\2bd1932336e1c833c04ef5881adf3dc7\language_0_scanner.cpp.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">[FLEX][SCANNER] Building scanner with flex 2.5.37</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+cd C:\src\Compiler
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+C:\win_flex_bison\flex.exe --wincompat -oC:/src/Compiler/build/flex-bison-autogen/language_0_scanner.cpp flex-bison/language_0.l
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/src/Compiler/build/CMakeFiles/2bd1932336e1c833c04ef5881adf3dc7/language_0_scanner.cpp.rule;C:\src\Compiler\flex-bison\language_0.l;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\src\Compiler\build\flex-bison-autogen\language_0_scanner.cpp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
