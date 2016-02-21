@@ -61,8 +61,7 @@ int main(int argc, char* argv[]) {
     compiler.root->print_tree(outRaw);
 
 	SymbolVisitor symVisit;
-
-    //((Visitor*) &symVisit)->visit(compiler.root);
+    Visitor::visit(&symVisit, compiler.root);
 
 	if (symVisit.hadError(&cerrFile)){
 		ret = 1;
@@ -70,7 +69,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	ConstVisitor constvisit;
-	//((Visitor*) &constvisit)->visit(compiler.root);
+    Visitor::visit(&constvisit, compiler.root);
 
 	if (constvisit.hadError(&cerrFile)){
 		ret = 1;
@@ -81,29 +80,29 @@ int main(int argc, char* argv[]) {
     compiler.root->print_tree(outA);
 
 	RegisterVisitor regVisit;
-	//((Visitor*) &regVisit)->visit(compiler.root);
+    Visitor::visit(&regVisit, compiler.root);
 
 	IRGeneratorVisitor irGenVisit;
-	//((Visitor*) &irGenVisit)->visit(compiler.root);
+    Visitor::visit(&irGenVisit, compiler.root);
 
     OffsetVisitor offvisit(compiler.root->instructionSize * 4);  // all instructions are 4 bytes
-	//((Visitor*) &offvisit)->visit(compiler.root);
+    Visitor::visit(&offvisit, compiler.root);
 
 	IRPrinterVisitor irVisit(&irOut);
-	//((Visitor*) &irVisit)->visit(compiler.root);
+    Visitor::visit(&irVisit, compiler.root);
 
 	IRTox86Visitor asmVisit;
-	//((Visitor*) &asmVisit)->visit(compiler.root);
+    Visitor::visit(&asmVisit, compiler.root);
 
 	IRPrinterVisitor asmPrintVisit(&asmOut);
-	//((Visitor*) &asmPrintVisit)->visit(compiler.root);
+    Visitor::visit(&asmPrintVisit, compiler.root);
 
 	x86Jitter jitter;
 
 	void* buf = jitter.allocateMemory(4 * 1024, 4 * 1024);
 
 	x86EmitterVisitor x86Visit(buf, jitter.getSize(), (size_t) ((char*) buf + jitter.getDataOffset()));
-    ((Visitor*) &x86Visit)->visit(compiler.root);
+    Visitor::visit(&x86Visit, compiler.root);
 
 	//auto fn = jitter.getFunction();
 

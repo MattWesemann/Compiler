@@ -18,7 +18,24 @@ build/
 # Windows executable files
 *.exe
 
+# VS stuff
+*.user
+*.suo
+*.opendb
+*.sdf
+vs/Debug/
+vs/.vs
+vs/Win32/
+vs/Backend/
+vs/frontend/
+vs/Test/
 
 # Stupid text editor temp files
 *~
 *#
+
+# Other
+Thumbs.db
+outputsimple.*
+parsetree.png
+run.bat

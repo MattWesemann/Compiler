@@ -1,4 +1,3 @@
-cat examples/standard.lang0 |
-build/Debug/frontend.exe |
-python parse-tree-to-graphvis.py |
-dot -Tpng -o parsetree.png
+@echo off
+type examples\testlang | build\Debug\frontend.exe outputsimple
+type outputsimple.p | python parse-tree-to-graphvis.py | dot -Tpng -o parsetree.png

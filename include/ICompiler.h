@@ -13,7 +13,7 @@
 #endif
 
 #define PERFORM_ERRORS(ERROR_MACRO)   \
-    ERROR_MACRO(ErrorNone)       	  \
+    ERROR_MACRO(ErrorNone)            \
     ERROR_MACRO(ErrorUnknown)  		  \
     ERROR_MACRO(ErrorSyntax)          \
     ERROR_MACRO(ErrorMemory) 		  \
@@ -41,7 +41,7 @@ public:
     }
 
 protected:
-    ~ICompiler(){}
+    virtual ~ICompiler(){}
 };
 
 // This is the public interface into the compiler

@@ -54,7 +54,7 @@ x86Jitter::JittedFunc x86Jitter::getFunction(){
 	BOOL ret = VirtualProtect(buf, dataOffset, PAGE_EXECUTE_READ, &dummy);
 	if (!ret)
 		return nullptr;
-	return (JittedFunc) buf;
+	return static_cast<JittedFunc>(buf);
 }
 
 #else
@@ -96,7 +96,7 @@ x86Jitter::JittedFunc x86Jitter::getFunction(){
 	int ret = mprotect(buf, dataOffset, PROT_READ | PROT_EXEC);
 	if (!ret)
 		return nullptr;
-	return (JittedFunc) buf;
+    return static_cast<JittedFunc>(buf);
 }
 
 #endif

@@ -16,7 +16,7 @@
 #	It will make a parsetree.png file in the 'root' directory, as well as dumping
 #	the ${2}.a, ${2}.err, and ${2}.p into the 'root' directory.
 
-cat ${1} | ./build/frontend ${2}
+cat ${1} | ./build/Debug/frontend ${2}
 mkdir -p ./output
 mv ${2}.a ./output
 mv ${2}.err ./output

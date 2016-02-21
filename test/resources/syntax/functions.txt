@@ -1,0 +1,15 @@
+int test();
+
+int test2(int r);
+
+int test3(int* r);
+
+int test4(int* r, char c[]);
+
+void test4(int* r, char c[], ...);
+
+char* test4(...);
+
+int test4(...) {
+	int r = 0;
+}

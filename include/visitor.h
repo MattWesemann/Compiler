@@ -9,6 +9,8 @@ class Visitor {
 public:
 	Visitor();
 
+    static void visit(Visitor* pVisitor, std::shared_ptr<ASTNode> node);
+
 	void visit(std::shared_ptr<ASTNode> node);
 	virtual void visit(ASTNode* node);
 

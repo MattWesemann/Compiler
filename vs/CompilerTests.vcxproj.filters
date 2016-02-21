@@ -15,4 +15,11 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\test\resources\syntax\assignment.txt" />
+    <Text Include="..\test\resources\syntax\assignment-bad.txt" />
+    <Text Include="..\test\resources\syntax\declarations.txt" />
+    <Text Include="..\test\resources\syntax\declarations-bad.txt" />
+    <Text Include="..\test\resources\syntax\structs.txt" />
+  </ItemGroup>
 </Project>

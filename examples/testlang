@@ -1,0 +1,49 @@
+struct aa {
+
+};
+
+struct aa {
+
+} cc;
+
+struct {
+
+} cc;
+
+struct {
+  int w, **a;
+  char ee[100], q;
+  struct aa qq;
+};
+
+typedef struct {
+
+} qwe, *pqwe;
+
+struct  aa {
+	const int* yy, ss;
+	int yx;
+	int yz;
+	int zz;
+	char dd[32];
+} abcd, *pabcd;
+
+int xx, yy;
+
+int main(int* arc, short*, ...);
+
+int main2() {
+	char* e4 = 0, const * const de =11;
+	char * const ee4;
+	
+	char egegre[20];
+	
+	struct abcd* ds;
+	struct abcd ds2;
+	
+	ds->yx = 0;
+	ds2.yx = 0;
+	
+	ee4[3] = 0;
+	
+}

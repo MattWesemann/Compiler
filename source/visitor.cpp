@@ -6,6 +6,10 @@ using namespace std;
 Visitor::Visitor(){
 }
 
+void Visitor::visit(Visitor* pVisitor, shared_ptr<ASTNode> node){
+    pVisitor->visit(node);
+}
+
 void Visitor::visit(shared_ptr<ASTNode> node){
 	visit(node.get());
 }
